@@ -79,8 +79,6 @@ public:
         {
             string name = textures[i].type;
 
-            std::cout << name << std::endl;
-
             if (name == "texture_diffuse")
             {
                 albedoMap = textures[i].id;
@@ -144,6 +142,9 @@ public:
 
         shader.setBool("useEmissive", emissiveMap != 0);
 
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, albedoMap);
 
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, albedoMap);

@@ -17,6 +17,7 @@ public:
 
 	void SetupPBR(const std::string& cubeMapPath);
 
+	void Clear();
 	void BeginFrame(Camera& camera);
 
 	void DrawPlane();
@@ -36,6 +37,7 @@ public:
 	Shader m_prefilterShader;
 	Shader m_brdfShader;
 	Shader m_backgroundShader;
+	Shader m_animShader;
 
 	unsigned int m_depthMapFBO;
 	unsigned int m_depthMap;

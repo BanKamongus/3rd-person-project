@@ -126,6 +126,7 @@ Renderer::Renderer()
     , m_prefilterShader("Assets/Shaders/2.2.2.cubemap.vs", "Assets/Shaders/2.2.2.prefilter.fs")
     , m_brdfShader("Assets/Shaders/2.2.2.brdf.vs", "Assets/Shaders/2.2.2.brdf.fs")
     , m_backgroundShader("Assets/Shaders/2.2.2.background.vs", "Assets/Shaders/2.2.2.background.fs")
+    , m_animShader("Assets/Shaders/anim_model.vs", "Assets/Shaders/anim_model.fs")
     , m_camera(&s_defaultCamera)
 {
     SetupDepthMap();
@@ -554,16 +555,20 @@ void Renderer::DrawCube()
     glBindVertexArray(0);
 }
 
-void Renderer::BeginFrame(Camera& camera)
+void Renderer::Clear()
 {
-    m_camera = &camera;
-
     glm::vec2 windowSize = Application::Get().GetWindowSize();
 
     glViewport(0, 0, windowSize.x, windowSize.y);
-    
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::BeginFrame(Camera& camera)
+{
+    Clear();
+
+    m_camera = &camera;
 
     m_pbrShader.use();
     glm::mat4 model = glm::mat4(1.0f);
