@@ -49,7 +49,7 @@ int main()
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
         float LerpSpeed = 5 * Time.Deltatime;
-        //CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
-        Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, PlayerOBJ->Transform.wPosition, LerpSpeed);
+        CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
+        Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);
     }
 }

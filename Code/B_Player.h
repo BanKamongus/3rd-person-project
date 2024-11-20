@@ -16,10 +16,15 @@ public:
 	void Render(Shader& shader);
 
 	GameObj* CamSocket;
+	GameObj* CamLookat;
 	GameObj* BODY;
 	void Init() {
+
 		CamSocket = GameObject->CreateChild();
-		CamSocket->Transform.wPosition = glm::vec3(0, 1, -3);
+		CamSocket->Transform.wPosition = glm::vec3(-0.2, 0.25, -1);
+
+		CamLookat = GameObject->CreateChild();
+		CamLookat->Transform.wPosition = glm::vec3(-0.2, 0.25, 0);
 
 		BODY = GameObject->CreateChild();
 	}
@@ -49,47 +54,60 @@ private:
 	Animation punchAnimation;
 	Animation kickAnimation;
 
+	glm::vec3 Velocity;
+
 
 	bool Input = false;
 	void Update_Control() {
 
 		Input = false;
-		float Speed = 3 * Time.Deltatime;
+		float Accel = Time.Deltatime * 0.25f;
 		float RotSpd = 8 * Time.Deltatime;
 		if (Input::GetKey(GLFW_KEY_W)) {
 			Input = true;
-			GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Speed;
-			BODY->Transform.wRotation = B_lerpVec3(BODY->Transform.wRotation,glm::vec3(0, 0, 0), RotSpd);
+			Velocity += GameObject->Transform.getForwardVector() * Accel;
+			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y,0, RotSpd);
 		}
 		else if (Input::GetKey(GLFW_KEY_S))
 		{
 			Input = true;
-			GameObject->Transform.wPosition -= GameObject->Transform.getForwardVector() * Speed;
-			BODY->Transform.wRotation = B_lerpVec3(BODY->Transform.wRotation, glm::vec3(0, 180, 0), RotSpd);
+			Velocity -= GameObject->Transform.getForwardVector() * Accel;
+			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 180, RotSpd);
 		}
 
 		if (Input::GetKey(GLFW_KEY_A)) {
 			Input = true;
-			GameObject->Transform.wPosition += GameObject->Transform.getLeftVector() * Speed;
-			BODY->Transform.wRotation = B_lerpVec3(BODY->Transform.wRotation, glm::vec3(0, 90, 0), RotSpd);
+			Velocity += GameObject->Transform.getLeftVector() * Accel;
+			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 90, RotSpd);
 		}
 		else if (Input::GetKey(GLFW_KEY_D))
-		{
+		{ 
 			Input = true;
-			GameObject->Transform.wPosition -= GameObject->Transform.getLeftVector() * Speed;
-			BODY->Transform.wRotation = B_lerpVec3(BODY->Transform.wRotation, glm::vec3(0, -90, 0), RotSpd);
+			Velocity -= GameObject->Transform.getLeftVector() * Accel;
+			if(Input::GetKey(GLFW_KEY_S)) {
+				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);
+			}
+			else{
+				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);
+			}
 		}
 
 		if (Input::GetKey(GLFW_KEY_E)) {
 			Input = true;
-			GameObject->Transform.wPosition.y += Speed;
+			Velocity += Accel;
 		}
 		else if (Input::GetKey(GLFW_KEY_Q))
 		{
 			Input = true;
-			GameObject->Transform.wPosition.y -= Speed;
+			Velocity.y -= Accel;
 		}
 
+		float MaxAccel = 4;
+		Velocity = B_lerpVec3(Velocity, glm::vec3(0), Time.Deltatime * 4);
+		Velocity.x = B_clamp(Velocity.x, -MaxAccel, MaxAccel);
+		Velocity.y = B_clamp(Velocity.y, -MaxAccel, MaxAccel);
+		Velocity.z = B_clamp(Velocity.z, -MaxAccel, MaxAccel);
+		GameObject->Transform.wPosition += Velocity;
 	}
 };
 
