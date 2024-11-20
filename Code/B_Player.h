@@ -21,10 +21,10 @@ public:
 	void Init() {
 
 		CamSocket = GameObject->CreateChild();
-		CamSocket->Transform.wPosition = glm::vec3(-0.2, 0.25, -1);
+		CamSocket->Transform.wPosition = glm::vec3(-0.25, 0.25, -1);
 
 		CamLookat = GameObject->CreateChild();
-		CamLookat->Transform.wPosition = glm::vec3(-0.2, 0.25, 0);
+		CamLookat->Transform.wPosition = glm::vec3(-0.25, 0.25, 0);
 
 		BODY = GameObject->CreateChild();
 	}
