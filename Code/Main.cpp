@@ -1,41 +1,55 @@
 #include "Application.h"
 #include "Renderer.h"
-#include "Player.h"
+
+#include "B_Player.h"
+#include "B_Camera.h"
+
+#include "BanKEngine.h"
+
 
 int main()
 {
     Application app;
     Renderer renderer;
 
-    Player player;
 
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
 
+
+    GameObj* CameraOBJ = GameObj::Create();
+        CameraOBJ->Transform.wPosition = glm::vec3(0, 0, -3);
+        B_Camera* Camera_Bhav = CameraOBJ->AddComponent(new B_Camera);
+
+    GameObj* PlayerOBJ = GameObj::Create();
+        PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
+        Player* Player_Bhav = PlayerOBJ->AddComponent(new Player);
+
+
+    BanKEngine::Init();
     while (!app.WindowShouldClose())
     {
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        BanKEngine::All_Update();
+        ///////////////////////////////////
+
 
         app.ProcessInput();
-
-        // Update game logic
-        player.Update(deltaTime);
 
 
         // Render
         renderer.Clear();
         renderer.m_animShader.use();
 
-        glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)1200 / (float)800, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0.0), glm::vec3(0, 1, 0));
+        renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
-        renderer.m_animShader.setMat4("projection", projection);
-        renderer.m_animShader.setMat4("view", view);
-
-        player.Render(renderer.m_animShader);
+        Player_Bhav->Render(renderer.m_animShader);
 
         app.SwapBuffers();
+
+
+
+        /////////////////////// TEMPORARY WORKSPACE  ///////////
+        float LerpSpeed = 5 * Time.Deltatime;
+        //CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
+        Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, PlayerOBJ->Transform.wPosition, LerpSpeed);
     }
 }

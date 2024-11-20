@@ -57,6 +57,6 @@ public:
 
 protected:
 	float m_fov = 60.0f;
-	glm::vec3 m_position;
+	glm::vec3 m_position= glm::vec3(0,0,3);
 	glm::vec3 m_lookAt;
 };
