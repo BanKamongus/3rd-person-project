@@ -3,6 +3,26 @@
 #include "_Def1.h"
 //BanKEngine Default Components
 
+glm::vec3 getDirectPosition(const glm::mat4& ModelMatrix) {
+	return glm::vec3(ModelMatrix[3][0], ModelMatrix[3][1], ModelMatrix[3][2]);
+}
+
+
+
+glm::vec3 getWorldPosition(const glm::mat4& ParentmodelMatrix) {
+
+	// Convert local position to homogeneous coordinates
+	glm::vec4 localPosition = glm::vec4(0);
+
+	// Get parent's model matrix
+	glm::mat4 parentMatrix = ParentmodelMatrix;
+
+	// Calculate world position
+	glm::vec4 worldPosition = parentMatrix * localPosition;
+
+	// Return the 3D world position (ignore the w component)
+	return glm::vec3(worldPosition);
+}
 
 glm::vec3 getWorldPosition(glm::vec3 Position,glm::mat4 ParentModelMatrix)  
 {
@@ -66,6 +86,7 @@ public:
 	virtual void Start() {}
 	virtual void Update() {}
 	virtual void LateUpdate() {}
+	virtual void Render(Shader& shader){}
 	virtual void Destruct() {}//for components with Scene Containers
 
 };

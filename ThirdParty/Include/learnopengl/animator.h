@@ -126,7 +126,7 @@ public:
 	Animation* m_CurrentAnimation;
 	Animation* m_CurrentAnimation2;
 	float m_CurrentTime;
-	float m_CurrentTime2;
+	float m_CurrentTime2;  
 	float m_DeltaTime;
 	float m_blendAmount;
 

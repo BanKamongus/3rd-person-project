@@ -15,18 +15,36 @@ public:
 	void Update();
 	void Render(Shader& shader);
 
+	GameObj* Gun_OBJ;
+	Model* Gun_Model;
+
+	GameObj* CamArea;
 	GameObj* CamSocket;
 	GameObj* CamLookat;
 	GameObj* BODY;
 	void Init() {
 
-		CamSocket = GameObject->CreateChild();
-		CamSocket->Transform.wPosition = glm::vec3(-0.25, 0.25, -1);
+		CamArea = GameObject->CreateChild();
 
-		CamLookat = GameObject->CreateChild();
-		CamLookat->Transform.wPosition = glm::vec3(-0.25, 0.25, 0);
+			CamSocket = CamArea->CreateChild();
+			CamSocket->Transform.wPosition = glm::vec3(-0.25, 0.5, -1)*2.0f;
+
+			CamLookat = CamArea->CreateChild();
+			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0.5, 1)*2.0f;
+				
+
 
 		BODY = GameObject->CreateChild();
+
+			Gun_OBJ = BODY->CreateChild();
+			Gun_OBJ->Transform.wPosition = glm::vec3(4, 6, 0) * 20.0f;
+			Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
+			Gun_OBJ->Transform.wScale = glm::vec3(20);
+
+
+
+
+		//Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
 	}
 
 private:
@@ -94,10 +112,9 @@ private:
 
 		if (Input::GetKey(GLFW_KEY_E)) {
 			Input = true;
-			Velocity += Accel;
+			Velocity.y += Accel;
 		}
-		else if (Input::GetKey(GLFW_KEY_Q))
-		{
+		else if (Input::GetKey(GLFW_KEY_Q)){
 			Input = true;
 			Velocity.y -= Accel;
 		}
@@ -107,7 +124,19 @@ private:
 		Velocity.x = B_clamp(Velocity.x, -MaxAccel, MaxAccel);
 		Velocity.y = B_clamp(Velocity.y, -MaxAccel, MaxAccel);
 		Velocity.z = B_clamp(Velocity.z, -MaxAccel, MaxAccel);
-		GameObject->Transform.wPosition += Velocity;
+		//GameObject->Transform.wPosition += Velocity;
+
+
+
+
+
+		if (Input::GetKey(GLFW_KEY_LEFT)) {
+			CamArea->Transform.wRotation.y -= 150 * Time.Deltatime;
+		}
+		else if (Input::GetKey(GLFW_KEY_RIGHT)) {
+			CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
+		}
+
 	}
 };
 
@@ -126,6 +155,13 @@ Player::Player()
 	, kickAnimation("Assets/Models/mixamo/kick.dae", &m_model)
 {
 	m_animator = std::make_unique<Animator>(&idleAnimation);
+
+	std::map<std::string, BoneInfo>::iterator it;
+	auto boneInfoMap = m_animator->m_CurrentAnimation->GetBoneIDMap();
+	for (it = boneInfoMap.begin(); it != boneInfoMap.end(); it++) {
+		cout << it->first
+			<< " " << it->second.id << std::endl;
+	}
 }
 
 void Player::Update()
@@ -258,16 +294,58 @@ void Player::Update()
 	Update_Control();
 }
 
+
+int BoneIdx = 7;
 void Player::Render(Shader& shader)
 {
-	auto transforms = m_animator->GetFinalBoneMatrices();
+	//FinalBoneMatrix = Transform Matrix that will be applied to T pose
+	//So the bone can move to desired position acoording to T pose
+	//NOT where the bone is right now in 3D space
+	//T pose in this case, will stay there as reference point
+	//and will not be moved
+	vector<glm::mat4> transforms = m_animator->GetFinalBoneMatrices();
 	for (int i = 0; i < transforms.size(); ++i)
 		shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
-	// render the loaded model
-	glm::mat4 model = BODY->Transform.modelMatrix;
-	model = glm::translate(model, glm::vec3(0.0f, -0.4f, 0.0f)); // translate it down so it's at the center of the scene
-	model = glm::scale(model, glm::vec3(.5f, .5f, .5f));	// it's a bit too big for our scene, so scale it down
-	shader.setMat4("model", model);
+
+	shader.setMat4("model", BODY->Transform.modelMatrix);
 	m_model.Draw(shader);
+
+
+
+	if (Input::GetKeyDown(GLFW_KEY_UP)) {
+		BoneIdx++;
+		BoneIdx = B_clampLoop(BoneIdx,0, transforms.size() - 1);
+		cout << endl
+			<< "TotalCount : " << transforms.size() << " | "
+			<< "Current    : " << BoneIdx
+			;
+	}
+	else if (Input::GetKeyDown(GLFW_KEY_DOWN)) {
+		BoneIdx--;
+		BoneIdx = B_clampLoop(BoneIdx, 0, transforms.size() - 1);
+		cout << endl
+			<< "TotalCount : " << transforms.size() << " | "
+			<< "Current    : " << BoneIdx
+			;
+	}
+
+
+	glm::mat4 mm_Parent = BODY->Transform.modelMatrix;
+	glm::mat4 mm_Child  = Gun_OBJ->Transform.modelMatrix;
+	glm::mat4 T_asLocal = transforms[BoneIdx];
+	glm::mat4 T_asWorld = mm_Parent * T_asLocal * glm::inverse(mm_Parent);
+
+	shader.setMat4("model", T_asWorld * mm_Child );
+	m_model.Draw(shader); 
+
+
+
+	//Gun_OBJ->Transform.wPosition = getDirectPosition(transforms[BoneIdx]);
+	//shader.setMat4("model", Gun_OBJ->Transform.modelMatrix);
+	//m_model.Draw(shader);
+
+	//shader.setMat4("model", glm::scale(transforms[BoneIdx], glm::vec3(1,1,-1)*20.0f));
+	//m_model.Draw(shader);
+
 }

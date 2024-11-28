@@ -36,7 +36,7 @@ int main()
 
         // Render
         renderer.Clear();
-        renderer.m_animShader.use();
+        renderer.m_animShader.use(); 
 
         renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
         renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
@@ -44,7 +44,6 @@ int main()
         Player_Bhav->Render(renderer.m_animShader);
 
         app.SwapBuffers();
-
 
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////

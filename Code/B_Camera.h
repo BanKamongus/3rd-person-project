@@ -23,7 +23,7 @@ public:
 		return projection;*/
 
 		glm::vec2 windowSize = Application::Get().GetWindowSize();
-		return glm::perspective(glm::radians(m_fov), (float)windowSize.x / (float)windowSize.y, 0.1f, 100.0f);
+		return glm::perspective(glm::radians(m_fov), (float)windowSize.x / (float)windowSize.y, 0.1f, 99999.0f);
 	}
 	glm::mat4 GetViewProjectionMatrix() const
 	{
