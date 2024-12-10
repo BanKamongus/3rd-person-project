@@ -7,6 +7,25 @@
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
 
+class Bullet : public BanKBehavior 
+{
+public:
+	Model* m_model;
+
+	Bullet(Model* m_model) :m_model(m_model) {
+
+	}
+
+	void Update() {
+		GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()*0.2f;
+	}
+
+	void Render(Shader& shader) {
+		shader.setMat4("model", GameObject->Transform.modelMatrix);
+		m_model->Draw(shader);
+	}
+};
+
 class Player : public BanKBehavior
 {
 public:
@@ -21,30 +40,34 @@ public:
 	GameObj* CamArea;
 	GameObj* CamSocket;
 	GameObj* CamLookat;
+	GameObj* BODY_RotProbe;
 	GameObj* BODY;
 	void Init() {
 
 		CamArea = GameObject->CreateChild();
+		CamArea->Transform.wPosition = glm::vec3(0, 1.25, 0);
 
 			CamSocket = CamArea->CreateChild();
-			CamSocket->Transform.wPosition = glm::vec3(-0.25, 0.5, -1)*2.0f;
+			CamSocket->Transform.wPosition = glm::vec3(-0.25, 0, -1)*2.0f;
 
 			CamLookat = CamArea->CreateChild();
-			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0.5, 1)*2.0f;
+			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0, 1)*2.0f;
 				
 
+
+		BODY_RotProbe = GameObject->CreateChild();
 
 		BODY = GameObject->CreateChild();
 
 			Gun_OBJ = BODY->CreateChild();
 			Gun_OBJ->Transform.wPosition = glm::vec3(4, 6, 0) * 20.0f;
 			Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
-			Gun_OBJ->Transform.wScale = glm::vec3(20);
+			Gun_OBJ->Transform.wScale = glm::vec3(20); 
 
 
 
 
-		//Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
+		Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
 	}
 
 private:
@@ -76,6 +99,7 @@ private:
 
 
 	bool Input = false;
+	bool InputPrev = false;
 	void Update_Control() {
 
 		Input = false;
@@ -83,25 +107,25 @@ private:
 		float RotSpd = 8 * Time.Deltatime;
 		if (Input::GetKey(GLFW_KEY_W)) {
 			Input = true;
-			Velocity += GameObject->Transform.getForwardVector() * Accel;
+			Velocity += CamArea->Transform.getForwardVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y,0, RotSpd);
 		}
 		else if (Input::GetKey(GLFW_KEY_S))
 		{
 			Input = true;
-			Velocity -= GameObject->Transform.getForwardVector() * Accel;
+			Velocity -= CamArea->Transform.getForwardVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 180, RotSpd);
 		}
 
 		if (Input::GetKey(GLFW_KEY_A)) {
 			Input = true;
-			Velocity += GameObject->Transform.getLeftVector() * Accel;
+			Velocity -= CamArea->Transform.getLeftVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 90, RotSpd);
 		}
 		else if (Input::GetKey(GLFW_KEY_D))
 		{ 
 			Input = true;
-			Velocity -= GameObject->Transform.getLeftVector() * Accel;
+			Velocity += CamArea->Transform.getLeftVector() * Accel;
 			if(Input::GetKey(GLFW_KEY_S)) {
 				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);
 			}
@@ -109,6 +133,25 @@ private:
 				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);
 			}
 		}
+
+
+		BODY_RotProbe->Transform.wRotation.y = CamArea->Transform.wRotation.y;
+		if (Input) {
+			BODY->Transform.Parent = &BODY_RotProbe->Transform;
+		}
+		else
+		{
+			if (InputPrev) {
+				glm::vec3 TransferRot = BODY->Transform.getWorldRotation();
+				BODY->Transform.Parent = &GameObject->Transform;
+
+				TransferRot.x = 0;
+				TransferRot.z = 0;
+				BODY->Transform.wRotation = TransferRot;
+			}
+		}
+		InputPrev = Input;
+
 
 		if (Input::GetKey(GLFW_KEY_E)) {
 			Input = true;
@@ -124,7 +167,7 @@ private:
 		Velocity.x = B_clamp(Velocity.x, -MaxAccel, MaxAccel);
 		Velocity.y = B_clamp(Velocity.y, -MaxAccel, MaxAccel);
 		Velocity.z = B_clamp(Velocity.z, -MaxAccel, MaxAccel);
-		//GameObject->Transform.wPosition += Velocity;
+		GameObject->Transform.wPosition += Velocity;
 
 
 
@@ -137,6 +180,20 @@ private:
 			CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
 		}
 
+		pair Mouse = Input::getMousePosChange();
+		float Mx = Mouse.first;
+		float My = Mouse.second; 
+		CamArea->Transform.wRotation.y -= 0.5f * Mx;
+		CamArea->Transform.wRotation.x += 0.5f * My;
+		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -80, 80);
+
+
+		if (Input::GetKeyDown(GLFW_KEY_N)) {
+			GameObj* BulletOBJ = GameObj::Create();
+			BulletOBJ->Transform.wPosition = GameObject->Transform.getWorldPosition();
+			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
+			BulletOBJ->AddComponent(new Bullet(&m_model));
+		}
 	}
 };
 
@@ -295,14 +352,14 @@ void Player::Update()
 }
 
 
-int BoneIdx = 7;
+int BoneIdx = MixamoBone_LeftHand;
 void Player::Render(Shader& shader)
 {
 	//FinalBoneMatrix = Transform Matrix that will be applied to T pose
 	//So the bone can move to desired position acoording to T pose
 	//NOT where the bone is right now in 3D space
 	//T pose in this case, will stay there as reference point
-	//and will not be moved
+	//and will not be moved 
 	vector<glm::mat4> transforms = m_animator->GetFinalBoneMatrices();
 	for (int i = 0; i < transforms.size(); ++i)
 		shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
@@ -338,14 +395,6 @@ void Player::Render(Shader& shader)
 
 	shader.setMat4("model", T_asWorld * mm_Child );
 	m_model.Draw(shader); 
-
-
-
-	//Gun_OBJ->Transform.wPosition = getDirectPosition(transforms[BoneIdx]);
-	//shader.setMat4("model", Gun_OBJ->Transform.modelMatrix);
-	//m_model.Draw(shader);
-
-	//shader.setMat4("model", glm::scale(transforms[BoneIdx], glm::vec3(1,1,-1)*20.0f));
-	//m_model.Draw(shader);
+	Gun_Model->Draw(shader);
 
 }

@@ -349,6 +349,11 @@ class Renderer;
 																Each->LateUpdate();
 															}
 														}
+														void Render(Shader& shader) {
+															for (BanKBehavior* Each : MyComponents) {
+																Each->Render(shader);
+															}
+														}
 
 
 

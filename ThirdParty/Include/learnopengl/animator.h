@@ -12,6 +12,65 @@
 #include <learnopengl/animation.h>
 #include <learnopengl/bone.h>
 
+
+enum MixamoBone {
+	MixamoBone_Head = 5,
+	MixamoBone_Hips = 0,
+	MixamoBone_LeftArm = 7,
+	MixamoBone_LeftFoot = 48,
+	MixamoBone_LeftForeArm = 8,
+	MixamoBone_LeftHand = 9,
+	MixamoBone_LeftHandIndex1 = 24,
+	MixamoBone_LeftHandIndex2 = 25,
+	MixamoBone_LeftHandIndex3 = 26,
+	MixamoBone_LeftHandMiddle1 = 27,
+	MixamoBone_LeftHandMiddle2 = 28,
+	MixamoBone_LeftHandMiddle3 = 29,
+	MixamoBone_LeftHandPinky1 = 11,
+	MixamoBone_LeftHandPinky2 = 33,
+	MixamoBone_LeftHandPinky3 = 34,
+	MixamoBone_LeftHandRing1 = 30,
+	MixamoBone_LeftHandRing2 = 31,
+	MixamoBone_LeftHandRing3 = 32,
+	MixamoBone_LeftHandThumb1 = 10,
+	MixamoBone_LeftHandThumb2 = 22,
+	MixamoBone_LeftHandThumb3 = 23,
+	MixamoBone_LeftLeg = 19,
+	MixamoBone_LeftShoulder = 6,
+	MixamoBone_LeftToeBase = 49,
+	MixamoBone_LeftUpLeg = 18,
+	MixamoBone_Neck = 4,
+	MixamoBone_RightArm = 13,
+	MixamoBone_RightFoot = 50,
+	MixamoBone_RightForeArm = 14,
+	MixamoBone_RightHand = 15,
+	MixamoBone_RightHandIndex1 = 37,
+	MixamoBone_RightHandIndex2 = 38,
+	MixamoBone_RightHandIndex3 = 39,
+	MixamoBone_RightHandMiddle1 = 40,
+	MixamoBone_RightHandMiddle2 = 41,
+	MixamoBone_RightHandMiddle3 = 42,
+	MixamoBone_RightHandPinky1 = 17,
+	MixamoBone_RightHandPinky2 = 46,
+	MixamoBone_RightHandPinky3 = 47,
+	MixamoBone_RightHandRing1 = 43,
+	MixamoBone_RightHandRing2 = 44,
+	MixamoBone_RightHandRing3 = 45,
+	MixamoBone_RightHandThumb1 = 16,
+	MixamoBone_RightHandThumb2 = 35,
+	MixamoBone_RightHandThumb3 = 36,
+	MixamoBone_RightLeg = 21,
+	MixamoBone_RightShoulder = 12,
+	MixamoBone_RightToeBase = 51,
+	MixamoBone_RightUpLeg = 20,
+	MixamoBone_Spine = 1,
+	MixamoBone_Spine1 = 2,
+	MixamoBone_Spine2 = 3
+};
+
+
+
+
 class Animator
 {
 public:

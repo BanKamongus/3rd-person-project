@@ -6,7 +6,7 @@
 
 #include "BanKEngine.h"
 
-
+ 
 int main()
 {
     Application app;
@@ -14,14 +14,22 @@ int main()
 
 
 
-
+    //Camera
     GameObj* CameraOBJ = GameObj::Create();
         CameraOBJ->Transform.wPosition = glm::vec3(0, 0, -3);
         B_Camera* Camera_Bhav = CameraOBJ->AddComponent(new B_Camera);
 
+    //Player
     GameObj* PlayerOBJ = GameObj::Create();
         PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         Player* Player_Bhav = PlayerOBJ->AddComponent(new Player);
+
+    //Scene
+    GameObj* SceneOBJ = GameObj::Create();
+        //Model Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        SceneOBJ->Transform.wPosition = glm::vec3(0, -10, 0);
+        SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
+        SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
 
 
     BanKEngine::Init();
@@ -29,22 +37,34 @@ int main()
     {
         BanKEngine::All_Update();
         ///////////////////////////////////
-
+         
 
         app.ProcessInput();
 
 
         // Render
         renderer.Clear();
-        renderer.m_animShader.use(); 
 
+        renderer.m_animShader.use(); 
         renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
         renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
-        Player_Bhav->Render(renderer.m_animShader);
+        for (GameObj* EACH : sGameObjs) {
+            EACH->Render(renderer.m_animShader);
+        }
+
+
+        //renderer.m_baseShader.use();
+        //renderer.m_baseShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        //renderer.m_baseShader.setMat4("view", Camera_Bhav->GetViewMatrix());
+
+        //renderer.m_baseShader.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        //renderer.m_baseShader.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
+
+        //Model_Racetrack.Draw(renderer.m_animShader);
 
         app.SwapBuffers();
-
+         
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
         float LerpSpeed = 5 * Time.Deltatime;
