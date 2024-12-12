@@ -10,6 +10,7 @@
 class Bullet : public BanKBehavior 
 {
 public:
+	float Speed = 0.05f;
 	Model* m_model;
 
 	Bullet(Model* m_model) :m_model(m_model) {
@@ -17,7 +18,7 @@ public:
 	}
 
 	void Update() {
-		GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()*0.2f;
+		GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()* Speed;
 	}
 
 	void Render(Shader& shader) {
@@ -57,12 +58,12 @@ public:
 
 		BODY_RotProbe = GameObject->CreateChild();
 
-		BODY = GameObject->CreateChild();
+			BODY = BODY_RotProbe->CreateChild();
 
-			Gun_OBJ = BODY->CreateChild();
-			Gun_OBJ->Transform.wPosition = glm::vec3(4, 6, 0) * 20.0f;
-			Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
-			Gun_OBJ->Transform.wScale = glm::vec3(20); 
+				Gun_OBJ = BODY->CreateChild();
+				Gun_OBJ->Transform.wPosition = glm::vec3(4, 6, 0) * 20.0f;
+				Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
+				Gun_OBJ->Transform.wScale = glm::vec3(20); 
 
 
 
@@ -119,36 +120,25 @@ private:
 
 		if (Input::GetKey(GLFW_KEY_A)) {
 			Input = true;
-			Velocity -= CamArea->Transform.getLeftVector() * Accel;
+			Velocity += CamArea->Transform.getLeftVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 90, RotSpd);
 		}
 		else if (Input::GetKey(GLFW_KEY_D))
 		{ 
 			Input = true;
-			Velocity += CamArea->Transform.getLeftVector() * Accel;
-			if(Input::GetKey(GLFW_KEY_S)) {
-				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);
-			}
-			else{
-				BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);
-			}
+
+			Velocity -= CamArea->Transform.getLeftVector() * Accel;
+
+			if(Input::GetKey(GLFW_KEY_S)) 
+			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);	} 
+			else
+			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);		}
 		}
 
 
-		BODY_RotProbe->Transform.wRotation.y = CamArea->Transform.wRotation.y;
+
 		if (Input) {
-			BODY->Transform.Parent = &BODY_RotProbe->Transform;
-		}
-		else
-		{
-			if (InputPrev) {
-				glm::vec3 TransferRot = BODY->Transform.getWorldRotation();
-				BODY->Transform.Parent = &GameObject->Transform;
-
-				TransferRot.x = 0;
-				TransferRot.z = 0;
-				BODY->Transform.wRotation = TransferRot;
-			}
+			BODY_RotProbe->Transform.wRotation.y = B_lerp(BODY_RotProbe->Transform.wRotation.y, CamArea->Transform.wRotation.y,Time.Deltatime*8);
 		}
 		InputPrev = Input;
 

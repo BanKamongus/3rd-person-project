@@ -26,7 +26,7 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        //Model Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        Model Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(0, -10, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
@@ -54,20 +54,21 @@ int main()
         }
 
 
-        //renderer.m_baseShader.use();
-        //renderer.m_baseShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
-        //renderer.m_baseShader.setMat4("view", Camera_Bhav->GetViewMatrix());
+        Shader& Shader4Scene = renderer.m_pbrShader; 
+        Shader4Scene.use(); 
+        Shader4Scene.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        Shader4Scene.setMat4("view", Camera_Bhav->GetViewMatrix());
+        Shader4Scene.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        //Shader4Scene.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
+        //Model_Racetrack.Draw(Shader4Scene);
 
-        //renderer.m_baseShader.setMat4("model", SceneOBJ->Transform.modelMatrix);
-        //renderer.m_baseShader.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
 
-        //Model_Racetrack.Draw(renderer.m_animShader);
 
         app.SwapBuffers();
          
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
-        float LerpSpeed = 5 * Time.Deltatime;
+        float LerpSpeed = 8 * Time.Deltatime;
         CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
         Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);
     }
