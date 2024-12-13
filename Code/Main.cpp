@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Renderer.h"
 
+#include "Model_DAEstatic.h"
 #include "B_Player.h"
 #include "B_Camera.h"
 
@@ -26,12 +27,14 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        //Model Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        Model_DAEstatic Model_Racetrack("Assets/Models/Racetrack/Racetrack.dae");
         SceneOBJ->Transform.wPosition = glm::vec3(0, -10, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
 
-         
+
+
+
     BanKEngine::Init();
     while (!app.WindowShouldClose())
     {
@@ -54,13 +57,13 @@ int main()
         }
 
 
-        Shader& Shader4Scene = renderer.m_pbrShader; 
-        Shader4Scene.use(); 
-        Shader4Scene.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
-        Shader4Scene.setMat4("view", Camera_Bhav->GetViewMatrix());
-        Shader4Scene.setMat4("model", SceneOBJ->Transform.modelMatrix);
-        Shader4Scene.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
-        //Model_Racetrack.Draw(Shader4Scene);
+
+        SceneOBJ->Transform.wPosition = glm::vec3(0); 
+        Shader& Shader4Scene = renderer.m_animShader; 
+        vector<glm::mat4> boneMatrices = { SceneOBJ->Transform.modelMatrix }; 
+        Model_Racetrack.SetBones(boneMatrices);
+
+        Model_Racetrack.Draw(Shader4Scene.ID);
 
 
 

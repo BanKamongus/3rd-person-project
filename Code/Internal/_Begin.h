@@ -21,14 +21,12 @@
 #include <GLFW/glfw3.h>
 
 
+
 //Math & Tools
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-//LEARN OPEN GL
-//#include <learnopengl/model.h>
 
 using namespace std;
 
