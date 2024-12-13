@@ -11,9 +11,9 @@ class Bullet : public BanKBehavior
 {
 public:
 	float Speed = 0.05f;
-	Model* m_model;
+	Model_Anim* m_model;
 
-	Bullet(Model* m_model) :m_model(m_model) {
+	Bullet(Model_Anim* m_model) :m_model(m_model) {
 
 	}
 
@@ -36,7 +36,7 @@ public:
 	void Render(Shader& shader);
 
 	GameObj* Gun_OBJ;
-	Model* Gun_Model;
+	//Model* Gun_Model;
 
 	GameObj* CamArea;
 	GameObj* CamSocket;
@@ -68,7 +68,7 @@ public:
 
 
 
-		Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
+		//Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
 	}
 
 private:
@@ -87,7 +87,7 @@ private:
 	float blendAmount = 0.0f;
 	float blendRate = 0.055f;
 
-	Model m_model;
+	Model_Anim m_model;
 	std::unique_ptr<Animator> m_animator;
 
 	Animation idleAnimation;
@@ -385,6 +385,6 @@ void Player::Render(Shader& shader)
 
 	shader.setMat4("model", T_asWorld * mm_Child );
 	m_model.Draw(shader); 
-	Gun_Model->Draw(shader);
+	//Gun_Model->Draw(shader);
 
 }

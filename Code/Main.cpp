@@ -54,12 +54,12 @@ int main()
         }
 
 
-        //Shader& Shader4Scene = renderer.m_pbrShader; 
-        //Shader4Scene.use(); 
-        //Shader4Scene.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
-        //Shader4Scene.setMat4("view", Camera_Bhav->GetViewMatrix());
-        //Shader4Scene.setMat4("model", SceneOBJ->Transform.modelMatrix);
-        //Shader4Scene.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
+        Shader& Shader4Scene = renderer.m_pbrShader; 
+        Shader4Scene.use(); 
+        Shader4Scene.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        Shader4Scene.setMat4("view", Camera_Bhav->GetViewMatrix());
+        Shader4Scene.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        Shader4Scene.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(SceneOBJ->Transform.modelMatrix))));
         //Model_Racetrack.Draw(Shader4Scene);
 
 
