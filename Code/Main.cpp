@@ -31,7 +31,7 @@ int main()
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
 
-
+         
     BanKEngine::Init();
     while (!app.WindowShouldClose())
     {
