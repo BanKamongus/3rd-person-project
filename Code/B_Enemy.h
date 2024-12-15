@@ -73,15 +73,21 @@ private:
 
 	glm::vec3 Velocity;
 
+	glm::vec3 TargetPos;
+	float FollowSpeed = 0.5f;
+	float Speed = 1.5;
 
-	bool Input = false;
-	bool InputPrev = false;
+
 	void Update_Behavior() {
 		if (Time.Deltatime > 0.1) { return; }
 		 
 		if (TargetPLR) {
-			GameObject->Transform.wRotation.y += Time.Deltatime*25;
-			GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()* Time.Deltatime;
+			TargetPos = B_lerpVec3(TargetPos,TargetPLR->GameObject->Transform.wPosition,Time.Deltatime* FollowSpeed);
+			GameObject->Transform.LookAt(TargetPos);
+			
+			if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
+				GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
+			}
 		}
 	}
 };

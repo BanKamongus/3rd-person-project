@@ -255,6 +255,23 @@ public:
 		glm::vec3 worldRotation = glm::degrees(glm::eulerAngles(worldRotationQuat));
 		return worldRotation;
 	}
+	void LookAt(const glm::vec3& targetPosition) {
+		// Calculate the direction vector to the target
+		glm::vec3 direction = targetPosition - wPosition;
+
+		// Calculate the yaw (rotation around the Y-axis) and pitch (rotation around the X-axis)
+		// Roll (rotation around Z-axis) is typically ignored for simple LookAt
+		float yaw = glm::atan(direction.x, direction.z); // atan2(y, x) for yaw
+		float pitch = glm::atan(direction.y, glm::length(glm::vec2(direction.x, direction.z))); // atan2(y, sqrt(x^2 + z^2)) for pitch
+
+		// Update the rotation of the object based on the calculated yaw and pitch
+		wRotation.y = glm::degrees(yaw); // Yaw is rotation around the Y-axis
+		wRotation.x = glm::degrees(pitch); // Pitch is rotation around the X-axis
+
+		// The object should not rotate around the Z-axis in a typical LookAt (roll is ignored)
+		wRotation.z = 0.0f;
+
+	}
 
 
 
