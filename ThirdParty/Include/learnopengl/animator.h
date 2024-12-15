@@ -145,14 +145,11 @@ public:
 		std::string nodeName = node->name;
 		glm::mat4 nodeTransform = node->transformation;
 
+		// Find Bone1 and Bone2 only once
 		Bone* Bone1 = m_CurrentAnimation->FindBone(nodeName);
-		Bone* Bone2 = NULL;
-		if (m_CurrentAnimation2) {
-			Bone2 = m_CurrentAnimation2->FindBone(nodeName);
-		}
-		
-		if (Bone1)
-		{
+		Bone* Bone2 = (m_CurrentAnimation2) ? m_CurrentAnimation2->FindBone(nodeName) : nullptr;
+
+		if (Bone1) {
 			Bone1->Update(m_CurrentTime);
 			nodeTransform = Bone1->GetLocalTransform();
 
@@ -163,16 +160,19 @@ public:
 
 		glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-		auto boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
-		if (boneInfoMap.find(nodeName) != boneInfoMap.end())
-		{
-			int index = boneInfoMap[nodeName].id;
-			glm::mat4 offset = boneInfoMap[nodeName].offset;
+		// Get BoneInfo once, avoiding redundant map lookups
+		auto it = m_CurrentAnimation->GetBoneIDMap().find(nodeName);
+		if (it != m_CurrentAnimation->GetBoneIDMap().end()) {
+			int index = it->second.id;
+			glm::mat4 offset = it->second.offset;
 			m_FinalBoneMatrices[index] = globalTransformation * offset;
 		}
 
-		for (int i = 0; i < node->childrenCount; i++)
+		// Iterate through children
+		for (int i = 0; i < node->childrenCount; i++) {
 			CalculateBoneTransform(&node->children[i], globalTransformation);
+		}
+
 	}
 
 	std::vector<glm::mat4> GetFinalBoneMatrices()

@@ -4,6 +4,7 @@
 #include "Model_DAEstatic.h"
 #include "B_Player.h"
 #include "B_Camera.h"
+#include "B_Enemy.h"
 
 #include "BanKEngine.h"
 
@@ -12,6 +13,7 @@ int main()
 {
     Application app;
     Renderer renderer;
+    glfwSwapInterval(0);
 
 
 
@@ -31,6 +33,17 @@ int main()
         SceneOBJ->Transform.wPosition = glm::vec3(0, -10, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
+
+
+
+     GameObj* Enemy01 = GameObj::Create();
+        Enemy01->Transform.wPosition = glm::vec3(1, 0, 0);
+        Enemy01->AddComponent(new Enemy);
+
+     GameObj* Enemy02 = GameObj::Create();
+        Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
+        Enemy02->AddComponent(new Enemy);
+
 
 
 
@@ -71,7 +84,7 @@ int main()
          
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
-        float LerpSpeed = 10 * Time.Deltatime;
+        float LerpSpeed = 16 * Time.Deltatime;
         CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
         Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);
     }

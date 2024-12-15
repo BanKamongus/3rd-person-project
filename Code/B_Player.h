@@ -31,12 +31,33 @@ class Player : public BanKBehavior
 {
 public:
 
+	struct Controls {
+		bool MOVE_FWD = false;
+		bool MOVE_BACK = false;
+		bool MOVE_LFT = false;
+		bool MOVE_RHT = false;
+		bool ATK_1 = false;
+		float TURN_X = 0;
+		float TURN_Y = 0;
+		void Update() {
+			MOVE_FWD = Input::GetKey(GLFW_KEY_W);
+			MOVE_BACK = Input::GetKey(GLFW_KEY_S);
+			MOVE_LFT = Input::GetKey(GLFW_KEY_A);
+			MOVE_RHT = Input::GetKey(GLFW_KEY_D);
+			ATK_1 = Input::GetKeyDown(GLFW_KEY_N);
+
+			pair Mouse = Input::getMousePosChange();
+			TURN_Y = Mouse.first;
+			TURN_X = Mouse.second;
+		}
+	}Controls;
+
 	Player();
 	void Update();
 	void Render(Shader& shader);
 
 	GameObj* Gun_OBJ;
-	Model* Gun_Model;
+	//Model* Gun_Model;
 
 	GameObj* CamArea;
 	GameObj* CamSocket;
@@ -68,7 +89,7 @@ public:
 
 
 
-		Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
+		//Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
 	}
 
 private:
@@ -101,35 +122,36 @@ private:
 
 	bool Input = false;
 	bool InputPrev = false;
-	void Update_Control() {
+	void Update_Behavior() {
+		Controls.Update();
 
 		Input = false;
 		float Accel = Time.Deltatime * 0.25f;
 		float RotSpd = 8 * Time.Deltatime;
-		if (Input::GetKey(GLFW_KEY_W)) {
+		if (Controls.MOVE_FWD) {
 			Input = true;
-			Velocity += CamArea->Transform.getForwardVector() * Accel;
+			Velocity += BODY_RotProbe->Transform.getForwardVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y,0, RotSpd);
 		}
-		else if (Input::GetKey(GLFW_KEY_S))
+		else if (Controls.MOVE_BACK)
 		{
 			Input = true;
-			Velocity -= CamArea->Transform.getForwardVector() * Accel;
+			Velocity -= BODY_RotProbe->Transform.getForwardVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 180, RotSpd);
 		}
 
-		if (Input::GetKey(GLFW_KEY_A)) {
+		if (Controls.MOVE_LFT) {
 			Input = true;
-			Velocity += CamArea->Transform.getLeftVector() * Accel;
+			Velocity += BODY_RotProbe->Transform.getLeftVector() * Accel;
 			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 90, RotSpd);
 		}
-		else if (Input::GetKey(GLFW_KEY_D))
+		else if (Controls.MOVE_RHT)
 		{ 
 			Input = true;
 
-			Velocity -= CamArea->Transform.getLeftVector() * Accel;
+			Velocity -= BODY_RotProbe->Transform.getLeftVector() * Accel;
 
-			if(Input::GetKey(GLFW_KEY_S)) 
+			if(Controls.MOVE_BACK)
 			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);	} 
 			else
 			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);		}
@@ -170,20 +192,18 @@ private:
 			CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
 		}
 
-		pair Mouse = Input::getMousePosChange();
-		float Mx = Mouse.first;
-		float My = Mouse.second; 
-		CamArea->Transform.wRotation.y -= 0.5f * Mx;
-		CamArea->Transform.wRotation.x += 0.5f * My;
+
+		CamArea->Transform.wRotation.y -= 0.5f * Controls.TURN_Y;
+		CamArea->Transform.wRotation.x += 0.5f * Controls.TURN_X;
 		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -80, 80);
 
 
-		if (Input::GetKeyDown(GLFW_KEY_N)) {
-			GameObj* BulletOBJ = GameObj::Create();
-			BulletOBJ->Transform.wPosition = GameObject->Transform.getWorldPosition();
-			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
-			BulletOBJ->AddComponent(new Bullet(&m_model));
-		}
+		//if (Controls.ATK_1) {
+		//	GameObj* BulletOBJ = GameObj::Create();
+		//	BulletOBJ->Transform.wPosition = GameObject->Transform.getWorldPosition();
+		//	BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
+		//	BulletOBJ->AddComponent(new Bullet(&m_model));
+		//}
 	}
 };
 
@@ -338,7 +358,7 @@ void Player::Update()
 	m_animator->UpdateAnimation(Time.Deltatime);
 
 
-	Update_Control();
+	Update_Behavior();
 }
 
 
@@ -385,6 +405,5 @@ void Player::Render(Shader& shader)
 
 	shader.setMat4("model", T_asWorld * mm_Child );
 	m_model.Draw(shader); 
-	Gun_Model->Draw(shader);
 
 }

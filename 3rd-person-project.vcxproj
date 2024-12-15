@@ -138,7 +138,6 @@
     <ClCompile Include="Code\Application.cpp" />
     <ClCompile Include="Code\ImGuiManager.cpp" />
     <ClCompile Include="Code\Main.cpp" />
-    <ClCompile Include="Code\Player.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
     <ClCompile Include="ThirdParty\Include\glad\glad.c" />
     <ClCompile Include="ThirdParty\Include\imgui\imgui.cpp" />
