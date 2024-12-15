@@ -121,8 +121,11 @@ public:
 
 	Transform() {
 		SerialID = "Transform";
-		sTransforms.push_back(this);
 	}
+
+	void Activate() {
+		sTransforms.push_back(this);
+	} 
 
 	glm::vec3 wPosition = glm::vec3(0,0,0 );
 	glm::vec3 wRotation = glm::vec3(0, 0.1, 0);
@@ -309,6 +312,7 @@ class Renderer;
 
 										bool Destroy = false;
 
+										
 
 										/// Relation  ///////////////////
 														GameObj* CreateChild() {
@@ -378,6 +382,7 @@ class Renderer;
 										/// Instancing ///////////////////
 												GameObj() {
 													sGameObjsAwait.push(this);
+													Transform.Activate();
 												}
 												static GameObj* Create() {
 													GameObj* NewOBJ = new GameObj;

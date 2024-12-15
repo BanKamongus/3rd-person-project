@@ -86,7 +86,7 @@ private:
 			GameObject->Transform.LookAt(TargetPos);
 			
 			if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
-				GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
+				//GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
 			}
 		}
 	}

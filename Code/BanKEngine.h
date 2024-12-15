@@ -68,6 +68,8 @@ namespace BanKEngine {
 			pInst->LateUpdate();
 		} 
 
+		B_ColliderShape::Update();
+
 
 		//Input::Update();/////////////////////////////////////////////////
 		Time.Calculate();
