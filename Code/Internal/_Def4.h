@@ -315,7 +315,7 @@ class Renderer;
 															return comp;
 														}
 														template<typename T>
-														T* GetComponent(T Class) {
+														T* GetComponent(T* Class) {
 															for (BanKBehavior* component : MyComponents) {
 																if (dynamic_cast<T*>(component)) { return dynamic_cast<T*>(component); }
 															}
@@ -381,3 +381,33 @@ class Renderer;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									template<typename T>
+									T* sGetComponent_OfClass(T* TargetClass)
+									{
+										for (GameObj* GameObj_ : sGameObjs) {
+
+											T* Comp = GameObj_->GetComponent(TargetClass);
+											if (Comp) {
+												return Comp;
+											}
+										}
+										return nullptr;
+									}

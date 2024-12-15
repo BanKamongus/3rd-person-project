@@ -2,6 +2,7 @@
 
 #include "BanKEngine.h"
 #include "Input.h"
+#include "B_Player.h"
 
 #include <learnopengl/shader.h>
 #include <learnopengl/animator.h>
@@ -26,6 +27,7 @@ public:
 	void Update();
 	void Render(Shader& shader);
 
+	Player* TargetPLR;
 	GameObj* Gun_OBJ;
 	int BoneIdx = MixamoBone_LeftHand;
 
@@ -38,6 +40,10 @@ public:
 				Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
 				Gun_OBJ->Transform.wScale = glm::vec3(20); 
 
+	}
+
+	void Start() {
+		TargetPLR = sGetComponent_OfClass(TargetPLR);
 	}
 
 private:
@@ -71,7 +77,12 @@ private:
 	bool Input = false;
 	bool InputPrev = false;
 	void Update_Behavior() {
-
+		if (Time.Deltatime > 0.1) { return; }
+		 
+		if (TargetPLR) {
+			GameObject->Transform.wRotation.y += Time.Deltatime*25;
+			GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()* Time.Deltatime;
+		}
 	}
 };
 
@@ -102,9 +113,6 @@ void Enemy::Update()
 		m_animator->PlayAnimation(&punchAnimation, NULL, 0.0f, 0.0f, 0.0f);
 	if (Input::GetKeyDown(GLFW_KEY_4))
 		m_animator->PlayAnimation(&kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
-
-	
-
 
 	m_animator->UpdateAnimation(Time.Deltatime);
 
