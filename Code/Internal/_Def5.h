@@ -10,6 +10,7 @@ namespace B_ColliderShape{
 		NaN = 0,
 
 		Capsule,
+		Sphere,
 		 
 		Null
 	};
@@ -41,6 +42,13 @@ class Collider_Base : public BanKBehavior {
 
 
 
+class Collider_Sphere : public Collider_Base {
+public:
+	float Radius = 0.32;
+	Collider_Sphere() {
+		Shape = B_ColliderShape::Sphere;
+	}
+};
 
 class Collider_Capsule : public Collider_Base {
 public:
@@ -56,9 +64,9 @@ public:
 namespace B_ColliderShape {
 
 	namespace Contact {
-		static void _Cap_Cap(Collider_Base* Coll_A_Base, Collider_Base* Coll_B_Base) {
-			Collider_Capsule* Coll_A = static_cast<Collider_Capsule*>(Coll_A_Base);
-			Collider_Capsule* Coll_B = static_cast<Collider_Capsule*>(Coll_B_Base);
+		void _Cap_Cap(Collider_Base* Coll_A_CAP, Collider_Base* Coll_B_CAP) {
+			Collider_Capsule* Coll_A = static_cast<Collider_Capsule*>(Coll_A_CAP);
+			Collider_Capsule* Coll_B = static_cast<Collider_Capsule*>(Coll_B_CAP);
 
 			float Distance = B_distance2D(
 				Coll_A->GameObject->Transform.wPosition.x, Coll_A->GameObject->Transform.wPosition.z,
@@ -67,7 +75,13 @@ namespace B_ColliderShape {
 
 			float RadSum = Coll_A->Radius + Coll_B->Radius;
 
-			if (Distance < RadSum) {
+			float Ay_BOT = Coll_A->GameObject->Transform.wPosition.y ;
+			float Ay_TOP = Coll_A->GameObject->Transform.wPosition.y + Coll_A->Height;
+			float By_BOT = Coll_B->GameObject->Transform.wPosition.y ;
+			float By_TOP = Coll_B->GameObject->Transform.wPosition.y + Coll_B->Height;
+			bool HeightCollide = (Ay_TOP>By_BOT)&&(Ay_BOT < By_TOP);
+
+			if (Distance < RadSum && HeightCollide) {
 				Coll_A->Event.isCollided = Coll_B->Event.isCollided = true;
 				Coll_A->Event.Other = Coll_B; Coll_B->Event.Other = Coll_A;
 
@@ -86,6 +100,17 @@ namespace B_ColliderShape {
 				Coll_B->GameObject->Transform.wPosition = B_TargetPos;
 			}
 		}
+
+		void _Cap_Sph(Collider_Base* Coll_A_CAP, Collider_Base* Coll_B_SPH) {
+			Collider_Capsule* CollA_cap = static_cast<Collider_Capsule*>(Coll_A_CAP);
+			Collider_Sphere* CollB_sph = static_cast<Collider_Sphere*>(Coll_B_SPH);
+		}
+
+		void _Sph_Sph(Collider_Base* Coll_A_SPH, Collider_Base* Coll_B_SPH) {
+			Collider_Sphere* CollA_sph = static_cast<Collider_Sphere*>(Coll_A_SPH);
+			Collider_Sphere* CollB_sph = static_cast<Collider_Sphere*>(Coll_B_SPH);
+		}
+
 	}
 
 
@@ -96,34 +121,50 @@ namespace B_ColliderShape {
 
 
 		if (sCollider_Base.size() > 0) {
-
-
 			for (int i1 = 0; i1 < sCollider_Base.size() - 1; i1++) {
-			
-
 				for (int i2 = i1 + 1; i2 < sCollider_Base.size(); i2++) {
+
+
 
 
 					switch (sCollider_Base[i1]->Shape)
 					{
 						case B_ColliderShape::Capsule:
-
 							switch (sCollider_Base[i2]->Shape)
 							{
 								case B_ColliderShape::Capsule:
 									Contact::_Cap_Cap(sCollider_Base[i1], sCollider_Base[i2]);
 									break;
+								case B_ColliderShape::Sphere:
+									Contact::_Cap_Sph(sCollider_Base[i1], sCollider_Base[i2]);
+									break;
 
 								default:
 									break;
 							}
+							break;
 
+						case B_ColliderShape::Sphere:
+							switch (sCollider_Base[i2]->Shape)
+								{
+								case B_ColliderShape::Capsule:
+									Contact::_Cap_Sph(sCollider_Base[i2], sCollider_Base[i1]);
+									break;
+								case B_ColliderShape::Sphere:
+									Contact::_Sph_Sph(sCollider_Base[i1], sCollider_Base[i2]);
+									break;
+
+								default:
+									break;
+								}
 							break;
 
 
 						default:
 							break;
 					}
+
+
 
 
 				}

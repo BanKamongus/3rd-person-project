@@ -60,24 +60,14 @@ namespace BanKEngine {
 			}
 		}
 
-		//for (Renderer* pInst : sRenderers) {
-		//	pInst->Draw();
-		//}
-
 		for (GameObj* pInst : sGameObjs) {
 			pInst->LateUpdate();
 		} 
 
 		B_ColliderShape::Update();
 
-
-		//Input::Update();/////////////////////////////////////////////////
 		Time.Calculate();
-		//BanKEngine::GlfwGlad::Update();
-		//B_Audio.UpdateAllSource();
-		//if (FreeCam) {
-		//	BanKEngine::GlfwGlad::processInput();
-		//}
+
 
 	}
 

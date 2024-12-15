@@ -87,6 +87,7 @@ public:
 			m_FinalBoneMatrices.push_back(glm::mat4(1.0f));
 	}
 
+	glm::mat4 Mat4One = glm::mat4(1.0f);
 	void UpdateAnimation(float dt)
 	{
 		m_DeltaTime = dt;
@@ -101,7 +102,7 @@ public:
 				m_CurrentTime2 = fmod(m_CurrentTime2, m_CurrentAnimation2->GetDuration());
 			}
 
-			CalculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f));
+			CalculateBoneTransform(&m_CurrentAnimation->GetRootNode(), Mat4One);
 		}
 	}
 

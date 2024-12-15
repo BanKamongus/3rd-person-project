@@ -82,8 +82,8 @@ private:
 		if (Time.Deltatime > 0.1) { return; }
 		 
 		if (TargetPLR) {
-			TargetPos = B_lerpVec3(TargetPos,TargetPLR->GameObject->Transform.wPosition,Time.Deltatime* FollowSpeed);
-			GameObject->Transform.LookAt(TargetPos);
+			//TargetPos = B_lerpVec3(TargetPos,TargetPLR->GameObject->Transform.wPosition,Time.Deltatime* FollowSpeed);
+			//GameObject->Transform.LookAt(TargetPos);
 			
 			if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
 				//GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
