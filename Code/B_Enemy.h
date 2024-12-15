@@ -99,12 +99,12 @@ private:
 #include <GLFW/glfw3.h>
 
 Enemy::Enemy()
-	: m_model("Assets/Models/mixamo/kachujin/kachujin.dae") 
-	, idleAnimation("Assets/Models/mixamo/kachujin/run.dae", &m_model)
-	, walkAnimation("Assets/Models/mixamo/kachujin/run.dae", &m_model)
-	, runAnimation("Assets/Models/mixamo/kachujin/run.dae", &m_model)
-	, punchAnimation("Assets/Models/mixamo/kachujin/run.dae", &m_model)
-	, kickAnimation("Assets/Models/mixamo/kachujin/run.dae", &m_model)
+	: m_model("Assets/Models/mixamo/doozy/doozy.dae") 
+	, idleAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
+	, walkAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
+	, runAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
+	, punchAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
+	, kickAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
 {
 	m_animator = std::make_unique<Animator>(&walkAnimation);
 }
