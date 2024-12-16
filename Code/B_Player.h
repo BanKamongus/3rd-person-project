@@ -14,6 +14,7 @@ public:
 	float lifespan = 2;
 	float Speed = 0.32f;
 	Model_Static* m_model;
+	Collider_Capsule* mCollider_Capsule;
 
 	Bullet(Model_Static* m_model) :m_model(m_model) {
 
@@ -21,6 +22,10 @@ public:
 
 	void Init() {
 		GameObject->Transform.wScale = glm::vec3(0.25f);
+		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
+		mCollider_Capsule->Radius = 0.05f;
+		mCollider_Capsule->Height = 0.1f;
+
 	}
 
 	void Update() {
@@ -29,6 +34,10 @@ public:
 		lifespan -= Time.Deltatime;
 		if (lifespan < 0) {
 			GameObject->Destroy = true;
+		}
+
+		if (mCollider_Capsule->Event.isCollided) {
+			GameObject->Transform.wScale = glm::vec3(1.16);
 		}
 	}
 
@@ -159,23 +168,25 @@ private:
 			BulletOBJ->AddComponent(new Bullet(Bullet_Model));
 		}
 		else if(Gun_Cooldown<=0) {
-			float Accel = Time.Deltatime * 0.32;
+
+			float Accel = Time.Deltatime * 32;
+
 			if (Controls.MOVE_FWD) {
 				Input = true;
 				Velocity += BODY_RotProbe->Transform.getForwardVector() * Accel;
-				BODY_TargetRot = 0;
+				BODY_TargetRot = B_lerp(BODY_TargetRot,0, Time.Deltatime *9);
 			}
 			else if (Controls.MOVE_BACK)
 			{
 				Input = true;
 				Velocity -= BODY_RotProbe->Transform.getForwardVector() * Accel;
-				BODY_TargetRot = 180;
+				BODY_TargetRot = B_lerp(BODY_TargetRot, 180, Time.Deltatime * 9);
 			}
 
 			if (Controls.MOVE_LFT) {
 				Input = true;
 				Velocity += BODY_RotProbe->Transform.getLeftVector() * Accel;
-				BODY_TargetRot = 90;
+				BODY_TargetRot = B_lerp(BODY_TargetRot, 90, Time.Deltatime * 9);
 			}
 			else if (Controls.MOVE_RHT)
 			{
@@ -185,11 +196,11 @@ private:
 
 				if (Controls.MOVE_BACK)
 				{
-					BODY_TargetRot = 270;
+					BODY_TargetRot = B_lerp(BODY_TargetRot, 270, Time.Deltatime * 9);
 				}
 				else
 				{
-					BODY_TargetRot = -90;
+					BODY_TargetRot = B_lerp(BODY_TargetRot, -90, Time.Deltatime * 9);
 				}
 			}
 		}
@@ -220,7 +231,7 @@ private:
 		Velocity.y = B_clamp(Velocity.y, -MaxVel, MaxVel);
 		Velocity.z = B_clamp(Velocity.z, -MaxVel, MaxVel);
 		Velocity = B_lerpVec3(Velocity, glm::vec3(0), Time.Deltatime * 4);
-		GameObject->Transform.wPosition += Velocity;
+		GameObject->Transform.wPosition += Velocity * Time.Deltatime;
 
 
 

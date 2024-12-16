@@ -42,7 +42,7 @@ int main()
      GameObj* Enemy01 = GameObj::Create();
         Enemy01->Transform.wPosition = glm::vec3(1, 0, 0);
         Enemy01->AddComponent(new Enemy);
-        Enemy01->AddComponent(new Collider_Capsule);
+        Enemy01->AddComponent(new Collider_Capsule); 
 
      //GameObj* Enemy02 = GameObj::Create();
      //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);

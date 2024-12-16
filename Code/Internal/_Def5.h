@@ -53,7 +53,7 @@ public:
 class Collider_Capsule : public Collider_Base {
 public:
 	float Radius = 0.32;
-	float Height = 1;
+	float Height = 1.25f;
 	Collider_Capsule() {
 		Shape = B_ColliderShape::Capsule;
 	}
