@@ -88,7 +88,7 @@ public:
 	virtual void Update() {}
 	virtual void LateUpdate() {}
 	virtual void Render(Renderer& renderer){}
-	virtual void Destruct() {}//for components with Scene Containers
+	virtual void Destruct() {}//// for components with Scene Containers //////////////
 
 };
 

@@ -37,6 +37,15 @@ class Collider_Base : public BanKBehavior {
 		Collider_Base() {
 			sCollider_Base.push_back(this);
 		}	
+
+		void Destruct() {
+			for (size_t i = 0; i < sCollider_Base.size(); ++i) {
+				if (sCollider_Base[i] == this) {
+					sCollider_Base.erase(sCollider_Base.begin() + i);
+					break;
+				}
+			}
+		}
 };
 
 
