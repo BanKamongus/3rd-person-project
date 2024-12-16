@@ -1,6 +1,7 @@
 #pragma once
 
 #include "_Def1.h"
+#include "Renderer.h"
 //BanKEngine Default Components
 
 glm::vec3 getDirectPosition(const glm::mat4& ModelMatrix) {
@@ -86,7 +87,7 @@ public:
 	virtual void Start() {}
 	virtual void Update() {}
 	virtual void LateUpdate() {}
-	virtual void Render(Shader& shader){}
+	virtual void Render(Renderer& renderer){}
 	virtual void Destruct() {}//for components with Scene Containers
 
 };
@@ -370,9 +371,9 @@ class Renderer;
 																Each->LateUpdate();
 															}
 														}
-														void Render(Shader& shader) {
+														void Render(Renderer& renderer) {
 															for (BanKBehavior* Each : MyComponents) {
-																Each->Render(shader);
+																Each->Render(renderer);
 															}
 														}
 

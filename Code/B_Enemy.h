@@ -90,6 +90,25 @@ private:
 			}
 		}
 	}
+
+
+
+	void Render(Renderer& renderer)
+	{
+
+		Shader& shader = renderer.m_animShader;
+		shader.use();
+
+		vector<glm::mat4> transforms = m_animator->GetFinalBoneMatrices();
+		for (int i = 0; i < transforms.size(); ++i)
+			shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+
+
+		shader.setMat4("model", BODY->Transform.modelMatrix);
+		m_model.Draw(shader);
+
+	}
+
 };
 
 
@@ -128,15 +147,3 @@ void Enemy::Update()
 
 
 
-void Enemy::Render(Shader& shader)
-{
-
-	vector<glm::mat4> transforms = m_animator->GetFinalBoneMatrices();
-	for (int i = 0; i < transforms.size(); ++i)
-		shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
-
-
-	shader.setMat4("model", BODY->Transform.modelMatrix);
-	m_model.Draw(shader);
-
-}

@@ -2,6 +2,7 @@
 
 #include "BanKEngine.h"
 #include "Input.h"
+#include "Renderer.h"
 
 #include <learnopengl/shader.h>
 #include <learnopengl/animator.h>
@@ -10,20 +11,33 @@
 class Bullet : public BanKBehavior 
 {
 public:
-	float Speed = 0.05f;
-	Model_Bone* m_model;
+	float lifespan = 2;
+	float Speed = 0.32f;
+	Model_Static* m_model;
 
-	Bullet(Model_Bone* m_model) :m_model(m_model) {
+	Bullet(Model_Static* m_model) :m_model(m_model) {
 
+	}
+
+	void Init() {
+		GameObject->Transform.wScale = glm::vec3(0.25f);
 	}
 
 	void Update() {
 		GameObject->Transform.wPosition += GameObject->Transform.getForwardVector()* Speed;
+
+		lifespan -= Time.Deltatime;
+		if (lifespan < 0) {
+			GameObject->Destroy = true;
+		}
 	}
 
-	void Render(Shader& shader) {
-		shader.setMat4("model", GameObject->Transform.modelMatrix);
-		m_model->Draw(shader);
+	void Render(Renderer& renderer) {
+
+		Shader& shader2 = renderer.m_basicShader;
+		shader2.use();
+		shader2.setMat4("model", GameObject->Transform.modelMatrix);
+		m_model->Draw(shader2);
 	}
 };
 
@@ -54,16 +68,22 @@ public:
 
 	Player();
 	void Update();
-	void Render(Shader& shader);
+	void Render(Renderer& renderer);
 
 	GameObj* Gun_OBJ;
-	//Model* Gun_Model;
+	Model_Static* Gun_Model;
+	glm::mat4 Gun_Matrix;
+	const float Gun_CooldownMax = 0.25f;
+	float Gun_Cooldown = 0;
+	Model_Static* Bullet_Model;
 
 	GameObj* CamArea;
 	GameObj* CamSocket;
 	GameObj* CamLookat;
 	GameObj* BODY_RotProbe;
+	float BODY_RotProbe_TargetRot;
 	GameObj* BODY;
+	float BODY_TargetRot;
 	void Init() {
 
 		CamArea = GameObject->CreateChild();
@@ -80,16 +100,17 @@ public:
 		BODY_RotProbe = GameObject->CreateChild();
 
 			BODY = BODY_RotProbe->CreateChild();
-
+			 
 				Gun_OBJ = BODY->CreateChild();
-				Gun_OBJ->Transform.wPosition = glm::vec3(4, 6, 0) * 20.0f;
-				Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
-				Gun_OBJ->Transform.wScale = glm::vec3(20); 
+				Gun_OBJ->Transform.wPosition = glm::vec3(-5, 7, 0) * 20.0f;
+				Gun_OBJ->Transform.wRotation = glm::vec3(-90, 180, 0);
+				Gun_OBJ->Transform.wScale = glm::vec3(3); 
 
 
 
 
-		//Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
+		Gun_Model = new Model_Static("Assets/Models/AK47/OBJ/ak7finished.obj");
+		Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
 	}
 
 private:
@@ -121,89 +142,102 @@ private:
 
 
 	bool Input = false;
-	bool InputPrev = false;
 	void Update_Behavior() {
 		Controls.Update();
 
 		Input = false;
-		float Accel = Time.Deltatime * 0.25f;
-		float RotSpd = 8 * Time.Deltatime;
-		if (Controls.MOVE_FWD) {
-			Input = true;
-			Velocity += BODY_RotProbe->Transform.getForwardVector() * Accel;
-			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y,0, RotSpd);
+
+		Gun_Cooldown -= Time.Deltatime;
+		if (Controls.ATK_1) {
+			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
+			BODY_TargetRot = 0;
+			Gun_Cooldown = Gun_CooldownMax;
+
+			GameObj* BulletOBJ = GameObj::Create();
+			BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
+			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
+			BulletOBJ->AddComponent(new Bullet(Bullet_Model));
 		}
-		else if (Controls.MOVE_BACK)
-		{
-			Input = true;
-			Velocity -= BODY_RotProbe->Transform.getForwardVector() * Accel;
-			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 180, RotSpd);
+		else if(Gun_Cooldown<=0) {
+			float Accel = Time.Deltatime * 0.32;
+			if (Controls.MOVE_FWD) {
+				Input = true;
+				Velocity += BODY_RotProbe->Transform.getForwardVector() * Accel;
+				BODY_TargetRot = 0;
+			}
+			else if (Controls.MOVE_BACK)
+			{
+				Input = true;
+				Velocity -= BODY_RotProbe->Transform.getForwardVector() * Accel;
+				BODY_TargetRot = 180;
+			}
+
+			if (Controls.MOVE_LFT) {
+				Input = true;
+				Velocity += BODY_RotProbe->Transform.getLeftVector() * Accel;
+				BODY_TargetRot = 90;
+			}
+			else if (Controls.MOVE_RHT)
+			{
+				Input = true;
+
+				Velocity -= BODY_RotProbe->Transform.getLeftVector() * Accel;
+
+				if (Controls.MOVE_BACK)
+				{
+					BODY_TargetRot = 270;
+				}
+				else
+				{
+					BODY_TargetRot = -90;
+				}
+			}
 		}
 
-		if (Controls.MOVE_LFT) {
-			Input = true;
-			Velocity += BODY_RotProbe->Transform.getLeftVector() * Accel;
-			BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 90, RotSpd);
-		}
-		else if (Controls.MOVE_RHT)
-		{ 
-			Input = true;
-
-			Velocity -= BODY_RotProbe->Transform.getLeftVector() * Accel;
-
-			if(Controls.MOVE_BACK)
-			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, 270, RotSpd);	} 
-			else
-			{	BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, -90, RotSpd);		}
-		}
 
 
 
-		if (Input) {
-			BODY_RotProbe->Transform.wRotation.y = B_lerp(BODY_RotProbe->Transform.wRotation.y, CamArea->Transform.wRotation.y,Time.Deltatime*8);
-		}
-		InputPrev = Input;
+		//if (Input::GetKey(GLFW_KEY_E)) {
+		//	Input = true;  
+		//	Velocity.y += Accel;
+		//}
+		//else if (Input::GetKey(GLFW_KEY_Q)){
+		//	Input = true;
+		//	Velocity.y -= Accel;
+		//}
 
 
-		if (Input::GetKey(GLFW_KEY_E)) {
-			Input = true;
-			Velocity.y += Accel;
-		}
-		else if (Input::GetKey(GLFW_KEY_Q)){
-			Input = true;
-			Velocity.y -= Accel;
-		}
+		//if (Input::GetKey(GLFW_KEY_LEFT)) {
+		//	CamArea->Transform.wRotation.y -= 150 * Time.Deltatime;
+		//}
+		//else if (Input::GetKey(GLFW_KEY_RIGHT)) {
+		//	CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
+		//}
 
-		float MaxAccel = 4;
+
+		float MaxVel = 5;
+		Velocity.x = B_clamp(Velocity.x, -MaxVel, MaxVel);
+		Velocity.y = B_clamp(Velocity.y, -MaxVel, MaxVel);
+		Velocity.z = B_clamp(Velocity.z, -MaxVel, MaxVel);
 		Velocity = B_lerpVec3(Velocity, glm::vec3(0), Time.Deltatime * 4);
-		Velocity.x = B_clamp(Velocity.x, -MaxAccel, MaxAccel);
-		Velocity.y = B_clamp(Velocity.y, -MaxAccel, MaxAccel);
-		Velocity.z = B_clamp(Velocity.z, -MaxAccel, MaxAccel);
 		GameObject->Transform.wPosition += Velocity;
 
 
 
-
-
-		if (Input::GetKey(GLFW_KEY_LEFT)) {
-			CamArea->Transform.wRotation.y -= 150 * Time.Deltatime;
-		}
-		else if (Input::GetKey(GLFW_KEY_RIGHT)) {
-			CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
-		}
-
-
 		CamArea->Transform.wRotation.y -= 0.5f * Controls.TURN_Y;
 		CamArea->Transform.wRotation.x += 0.5f * Controls.TURN_X;
-		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -80, 80);
+		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -32, 32);
 
 
-		//if (Controls.ATK_1) {
-		//	GameObj* BulletOBJ = GameObj::Create();
-		//	BulletOBJ->Transform.wPosition = GameObject->Transform.getWorldPosition();
-		//	BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
-		//	BulletOBJ->AddComponent(new Bullet(&m_model));
-		//}
+		if (Input) {
+			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
+		}
+
+
+		float RotSpd_A = 10 * Time.Deltatime;
+		float RotSpd_B = 12 * Time.Deltatime;
+		BODY_RotProbe->Transform.wRotation.y = B_lerp(BODY_RotProbe->Transform.wRotation.y, BODY_RotProbe_TargetRot, RotSpd_A);
+		BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, BODY_TargetRot, RotSpd_B);
 	}
 };
 
@@ -215,9 +249,9 @@ private:
 
 Player::Player()
 	: m_model("Assets/Models/mixamo/steve.dae")
-	, idleAnimation("Assets/Models/mixamo/idle.dae", &m_model)
+	, idleAnimation("Assets/Models/mixamo/Rifle Aiming Idle.dae", &m_model)
 	, walkAnimation("Assets/Models/mixamo/walk.dae", &m_model)
-	, runAnimation("Assets/Models/mixamo/run.dae", &m_model)
+	, runAnimation("Assets/Models/mixamo/Rifle Run.dae", &m_model)
 	, punchAnimation("Assets/Models/mixamo/punch.dae", &m_model)
 	, kickAnimation("Assets/Models/mixamo/kick.dae", &m_model)
 {
@@ -264,17 +298,17 @@ void Player::Update()
 	case IDLE_WALK:
 		blendAmount += blendRate;
 		blendAmount = fmod(blendAmount, 1.0f);
-		m_animator->PlayAnimation(&idleAnimation, &walkAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+		m_animator->PlayAnimation(&idleAnimation, &runAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
 			float startTime = m_animator->m_CurrentTime2;
-			m_animator->PlayAnimation(&walkAnimation, NULL, startTime, 0.0f, blendAmount);
+			m_animator->PlayAnimation(&runAnimation, NULL, startTime, 0.0f, blendAmount);
 			charState = WALK;
 		}
 		printf("idle_walk \n");
 		break;
 	case WALK:
-		m_animator->PlayAnimation(&walkAnimation, NULL, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+		m_animator->PlayAnimation(&runAnimation, NULL, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (!Input) {
 			charState = WALK_IDLE;
 		}
@@ -283,7 +317,7 @@ void Player::Update()
 	case WALK_IDLE:
 		blendAmount += blendRate;
 		blendAmount = fmod(blendAmount, 1.0f);
-		m_animator->PlayAnimation(&walkAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+		m_animator->PlayAnimation(&runAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
 			float startTime = m_animator->m_CurrentTime2;
@@ -362,48 +396,42 @@ void Player::Update()
 }
 
 
-int BoneIdx = MixamoBone_LeftHand;
-void Player::Render(Shader& shader)
+int BoneIdx = MixamoBone_RightHand;
+void Player::Render(Renderer& renderer)
 {
+
+
 	//FinalBoneMatrix = Transform Matrix that will be applied to T pose
 	//So the bone can move to desired position acoording to T pose
 	//NOT where the bone is right now in 3D space
 	//T pose in this case, will stay there as reference point
 	//and will not be moved 
+
+	Shader& shader = renderer.m_animShader;
+	shader.use();
+
 	vector<glm::mat4> transforms = m_animator->GetFinalBoneMatrices();
 	for (int i = 0; i < transforms.size(); ++i)
 		shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
-
 
 	shader.setMat4("model", BODY->Transform.modelMatrix);
 	m_model.Draw(shader);
 
 
 
-	if (Input::GetKeyDown(GLFW_KEY_UP)) {
-		BoneIdx++;
-		BoneIdx = B_clampLoop(BoneIdx,0, transforms.size() - 1);
-		cout << endl
-			<< "TotalCount : " << transforms.size() << " | "
-			<< "Current    : " << BoneIdx
-			;
-	}
-	else if (Input::GetKeyDown(GLFW_KEY_DOWN)) {
-		BoneIdx--;
-		BoneIdx = B_clampLoop(BoneIdx, 0, transforms.size() - 1);
-		cout << endl
-			<< "TotalCount : " << transforms.size() << " | "
-			<< "Current    : " << BoneIdx
-			;
-	}
 
+
+	Shader& shader2 = renderer.m_basicShader;
+	shader2.use();
 
 	glm::mat4 mm_Parent = BODY->Transform.modelMatrix;
 	glm::mat4 mm_Child  = Gun_OBJ->Transform.modelMatrix;
 	glm::mat4 T_asLocal = transforms[BoneIdx];
 	glm::mat4 T_asWorld = mm_Parent * T_asLocal * glm::inverse(mm_Parent);
+	Gun_Matrix = T_asWorld * mm_Child;
 
-	shader.setMat4("model", T_asWorld * mm_Child );
-	m_model.Draw(shader); 
+	shader2.setMat4("model", Gun_Matrix);
+	Gun_Model->Draw(shader2);
+
 
 }

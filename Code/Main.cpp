@@ -2,6 +2,8 @@
 #include "Renderer.h"
 
 #include "Model_DAEstatic.h"
+#include <learnopengl/model.h>
+
 #include "B_Player.h"
 #include "B_Camera.h"
 #include "B_Enemy.h"
@@ -30,10 +32,10 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        Model_DAEstatic Model_Racetrack("Assets/Models/Racetrack/Racetrack.dae");
-        SceneOBJ->Transform.wPosition = glm::vec3(0, -10, 0);
+        //Model_Static Model_Racetrack("Assets/Models/AK47/OBJ/ak7finished.obj");
+        SceneOBJ->Transform.wPosition = glm::vec3(30, 0, 30);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
-        SceneOBJ->Transform.wScale = glm::vec3(30.0f, 30.0f, 30.0f) * 2.5f;
+        SceneOBJ->Transform.wScale = glm::vec3(10.0f, 10.0f, 10.0f);
 
 
 
@@ -42,11 +44,11 @@ int main()
         Enemy01->AddComponent(new Enemy);
         Enemy01->AddComponent(new Collider_Capsule);
 
-     GameObj* Enemy02 = GameObj::Create();
-        Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
-        Enemy02->AddComponent(new Enemy);
-        Enemy02->AddComponent(new Collider_Capsule);
-         
+     //GameObj* Enemy02 = GameObj::Create();
+     //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
+     //   Enemy02->AddComponent(new Enemy);
+     //   Enemy02->AddComponent(new Collider_Capsule);
+     //    
 
 
 
@@ -63,23 +65,22 @@ int main()
 
         // Render
         renderer.Clear();
-
+         
         renderer.m_animShader.use(); 
         renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
         renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
-        for (GameObj* EACH : sGameObjs) {
-            EACH->Render(renderer.m_animShader);
-        }
-
-
 
         SceneOBJ->Transform.wPosition = glm::vec3(0); 
-        Shader& Shader4Scene = renderer.m_animShader; 
-        vector<glm::mat4> boneMatrices = { SceneOBJ->Transform.modelMatrix }; 
-        Model_Racetrack.SetBones(boneMatrices);
+        Shader& Shader4Static = renderer.m_basicShader; 
+        Shader4Static.use();
+        Shader4Static.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        Shader4Static.setMat4("view", Camera_Bhav->GetViewMatrix());
 
-        Model_Racetrack.Draw(Shader4Scene.ID);
+        for (GameObj* EACH : sGameObjs) {
+            EACH->Render(renderer);
+        }
+
 
 
 
