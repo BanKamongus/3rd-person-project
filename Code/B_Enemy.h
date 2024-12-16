@@ -4,9 +4,43 @@
 #include "Input.h"
 #include "B_Player.h"
 
+#include <GLFW/glfw3.h>
+
 #include <learnopengl/shader.h>
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
+
+
+
+namespace Doozy {
+	class Doozy {
+		public:
+
+			Animation idleAnimation;
+			Animation walkAnimation;
+			Animation runAnimation;
+			Animation punchAnimation;
+			Animation KnockAnimation;
+			Model_Bone m_model;
+
+			Doozy()
+				: m_model("Assets/Models/mixamo/doozy/doozy.dae")
+			{
+				idleAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				walkAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				runAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				punchAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				KnockAnimation = Animation("Assets/Models/mixamo/doozy/Slipping.dae", &m_model);
+			}
+
+	}*Data_;
+
+	void Load() {
+		Data_ = new Doozy;
+	}
+
+}
+
 
 
 class Enemy : public BanKBehavior
@@ -29,6 +63,7 @@ public:
 
 	Player* TargetPLR;
 	GameObj* Gun_OBJ;
+	Collider_Capsule* mCollider_Capsule;
 	int BoneIdx = MixamoBone_LeftHand;
 
 	GameObj* BODY;
@@ -40,6 +75,7 @@ public:
 				Gun_OBJ->Transform.wRotation = glm::vec3(0, 90, 0);
 				Gun_OBJ->Transform.wScale = glm::vec3(20); 
 
+				mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
 	}
 
 	void Start() {
@@ -69,7 +105,7 @@ private:
 	Animation walkAnimation;
 	Animation runAnimation;
 	Animation punchAnimation;
-	Animation kickAnimation;
+	Animation KnockAnimation;
 
 	glm::vec3 Velocity;
 
@@ -78,6 +114,9 @@ private:
 	float Speed = 1.5;
 
 
+
+	float DeathTimer = 1;
+	bool DeathTimerStart = false;
 	void Update_Behavior() {
 		if (Time.Deltatime > 0.1) { return; }
 		 
@@ -87,6 +126,26 @@ private:
 			
 			if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
 				//GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
+			}
+		}
+
+		if (mCollider_Capsule->Event.isCollided) {
+			Bullet* GetBullet = nullptr;
+			GetBullet = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetBullet);
+			if (GetBullet && !DeathTimerStart) {
+				GameObj* newEnemy = GameObj::Create();
+				newEnemy->Transform.wPosition = GameObject->Transform.wPosition + glm::vec3(1,0,0);
+				newEnemy->AddComponent(new Enemy);
+
+				DeathTimerStart = true;
+				m_animator->PlayAnimation(&KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
+			}
+		}
+
+		if (DeathTimerStart) {
+			DeathTimer -= Time.Deltatime;
+			if (DeathTimer < 0) {
+				GameObject->Destroy = true;
 			}
 		}
 	}
@@ -114,22 +173,23 @@ private:
 
 
 
-#include "Input.h"
-#include <GLFW/glfw3.h>
 
 Enemy::Enemy()
-	: m_model("Assets/Models/mixamo/doozy/doozy.dae") 
-	, idleAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
-	, walkAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
-	, runAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
-	, punchAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
-	, kickAnimation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model)
+	: m_model(Doozy::Data_->m_model)
+	, idleAnimation(Doozy::Data_->idleAnimation, &m_model)
+	, walkAnimation(Doozy::Data_->walkAnimation, &m_model)
+	, runAnimation(Doozy::Data_->runAnimation, &m_model)
+	, punchAnimation(Doozy::Data_->punchAnimation, &m_model)
+	, KnockAnimation(Doozy::Data_->KnockAnimation, &m_model)
 {
 	m_animator = std::make_unique<Animator>(&walkAnimation);
 }
 
 void Enemy::Update()
 {
+
+	Update_Behavior();
+
 	if (Input::GetKeyDown(GLFW_KEY_1))
 		m_animator->PlayAnimation(&idleAnimation, NULL, 0.0f, 0.0f, 0.0f);
 	if (Input::GetKeyDown(GLFW_KEY_2))
@@ -137,12 +197,11 @@ void Enemy::Update()
 	if (Input::GetKeyDown(GLFW_KEY_3))
 		m_animator->PlayAnimation(&punchAnimation, NULL, 0.0f, 0.0f, 0.0f);
 	if (Input::GetKeyDown(GLFW_KEY_4))
-		m_animator->PlayAnimation(&kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
+		m_animator->PlayAnimation(&KnockAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
 	m_animator->UpdateAnimation(Time.Deltatime);
 
 
-	Update_Behavior();
 }
 
 

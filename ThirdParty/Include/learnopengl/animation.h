@@ -36,6 +36,24 @@ public:
 		ReadMissingBones(animation, *model);
 	}
 
+	Animation(const Animation& copyAnim, Model_Bone* model)
+	{
+		// Copy scalar values
+		m_Duration = copyAnim.m_Duration;
+		m_TicksPerSecond = copyAnim.m_TicksPerSecond;
+
+		// Deep copy of the bones
+		m_Bones = copyAnim.m_Bones;  // Copy the vector of bones (this is a deep copy if Bone itself does not own dynamic memory)
+
+		// Deep copy of the root node and its children
+		m_RootNode = copyAnim.m_RootNode;  // This will copy the AssimpNodeData structure
+
+		// Copy the bone info map (deep copy of the map)
+		m_BoneInfoMap = copyAnim.m_BoneInfoMap;
+
+	}
+
+
 	~Animation()
 	{
 	}

@@ -37,7 +37,7 @@ public:
 		}
 
 		if (mCollider_Capsule->Event.isCollided) {
-			GameObject->Transform.wScale = glm::vec3(1.16);
+			//GameObject->Destroy = true;
 		}
 	}
 
@@ -67,13 +67,13 @@ public:
 			MOVE_BACK = Input::GetKey(GLFW_KEY_S);
 			MOVE_LFT = Input::GetKey(GLFW_KEY_A);
 			MOVE_RHT = Input::GetKey(GLFW_KEY_D);
-			ATK_1 = Input::GetKeyDown(GLFW_KEY_N);
+			ATK_1 = Input::GetKey(GLFW_KEY_N);
 
 			pair Mouse = Input::getMousePosChange();
 			TURN_Y = Mouse.first;
 			TURN_X = Mouse.second;
 		}
-	}Controls;
+	}Controls; 
 
 	Player();
 	void Update();

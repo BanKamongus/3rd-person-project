@@ -16,7 +16,7 @@ int main()
     Application app;
     Renderer renderer;
     glfwSwapInterval(0);
-
+    Doozy::Load();
 
 
     //Camera
@@ -42,13 +42,12 @@ int main()
      GameObj* Enemy01 = GameObj::Create();
         Enemy01->Transform.wPosition = glm::vec3(1, 0, 0);
         Enemy01->AddComponent(new Enemy);
-        Enemy01->AddComponent(new Collider_Capsule); 
+ 
 
      //GameObj* Enemy02 = GameObj::Create();
      //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
      //   Enemy02->AddComponent(new Enemy);
-     //   Enemy02->AddComponent(new Collider_Capsule);
-     //    
+ 
 
 
 

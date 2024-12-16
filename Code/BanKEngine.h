@@ -45,30 +45,33 @@ namespace BanKEngine {
 							pInst->Update();
 						}
 
-		for (GameObj* pInst : sGameObjs) {	//Render 
+		for (GameObj* pInst : sGameObjs) {//Destroy
 			if (pInst->Destroy) { GameObj::DestroyObj(pInst); }
 		}
 
-		for (Transform* pInst : sTransforms) {
-			if (!pInst->Parent) {
-				pInst->modelMatrix_Update3D();
-			}
-		}
-		for (Transform* pInst : sTransforms) {
-			if (pInst->Parent) {
-				pInst->modelMatrix_Update3D();
-			}
-		}
+
+				for (GameObj* pInst : sGameObjs) {	
+					if (!pInst->Transform.Parent) {
+						pInst->Transform.modelMatrix_Update3D();
+					}
+				}
+				for (GameObj* pInst : sGameObjs) {	
+					if (pInst->Transform.Parent) {
+						pInst->Transform.modelMatrix_Update3D();
+					}
+				}
+
 
 		for (GameObj* pInst : sGameObjs) {
 			pInst->LateUpdate();
 		} 
 
+
 		B_ColliderShape::Update();
 
 		Time.Calculate();
 
-
+		cout << "|" << sGameObjsAwait.size() << "|"<<sGameObjs.size() << "|" << Time.Fps << "|";
 	}
 
 	void All_Start() {

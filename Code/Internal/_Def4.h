@@ -54,8 +54,8 @@ glm::vec3 getWorldRotation(glm::mat4 ParentModelMatrix)
 class GameObj;
 class Renderer;
 
-class BanKBehavior;
-vector<BanKBehavior*> sBanKBehavior;
+//class BanKBehavior;
+//vector<BanKBehavior*> sBanKBehavior;
 class BanKBehavior {
 	bool didTrue_Init = false;
 	bool didTrue_Start = false;
@@ -67,7 +67,7 @@ public:
 	GameObj* GameObject;
 	BanKBehavior() {
 		//cout << "\tBanKBehavior";
-		sBanKBehavior.push_back(this);
+		//sBanKBehavior.push_back(this);
 	}
 
 	void True_Init() {
@@ -113,8 +113,8 @@ public:
 
 
 
-class Transform;
-vector<Transform*> sTransforms;//Dont Auto Update
+//class Transform;
+//vector<Transform*> sTransforms;//Dont Auto Update
 class Transform : public BanKBehavior {
 	const glm::mat4 mat4one = glm::mat4(1.0f);
 public:
@@ -122,10 +122,6 @@ public:
 
 	Transform() {
 		SerialID = "Transform";
-	}
-
-	void Activate() {
-		sTransforms.push_back(this);
 	} 
 
 	glm::vec3 wPosition = glm::vec3(0,0,0 );
@@ -288,13 +284,13 @@ public:
 	}
 
 	void Destruct() {
-		for (int i = sTransforms.size() - 1; i >= 0; i--) {
-			if (sTransforms[i] == this) {
-				sTransforms[i] = nullptr;
-				sTransforms.erase(sTransforms.begin() + i);
-				break;
-			}
-		}
+		//for (int i = sTransforms.size() - 1; i >= 0; i--) {
+		//	if (sTransforms[i] == this) {
+		//		sTransforms[i] = nullptr;
+		//		sTransforms.erase(sTransforms.begin() + i);
+		//		break;
+		//	}
+		//}
 	}
 };
 
@@ -383,7 +379,6 @@ class Renderer;
 										/// Instancing ///////////////////
 												GameObj() {
 													sGameObjsAwait.push(this);
-													Transform.Activate();
 												}
 												static GameObj* Create() {
 													GameObj* NewOBJ = new GameObj;
