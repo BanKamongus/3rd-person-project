@@ -224,23 +224,7 @@ public:
 
 
 	glm::vec3 getWorldPosition() const {
-		if (Parent) {
-			// Convert local position to homogeneous coordinates
-			glm::vec4 localPosition = glm::vec4(wPosition, 1.0f);
-
-			// Get parent's model matrix
-			glm::mat4 parentMatrix = Parent->modelMatrix;
-
-			// Calculate world position
-			glm::vec4 worldPosition = parentMatrix * localPosition;
-
-			// Return the 3D world position (ignore the w component)
-			return glm::vec3(worldPosition);
-		}
-		else {
-			// No parent, world position is the same as local position
-			return wPosition;
-		}
+		return getDirectPosition(modelMatrix);
 	}
 	glm::vec3 getWorldRotation() const {
 		glm::quat worldRotationQuat = glm::quat(glm::vec3(glm::radians(wRotation.x), glm::radians(wRotation.y), glm::radians(wRotation.z)));

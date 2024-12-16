@@ -11,8 +11,8 @@
 class Bullet : public BanKBehavior 
 {
 public:
-	float lifespan = 2;
-	float Speed = 0.32f;
+	float lifespan = 0.72;
+	float Speed = 0.64f;
 	Model_Static* m_model;
 	Collider_Capsule* mCollider_Capsule;
 
@@ -155,6 +155,7 @@ private:
 		Controls.Update();
 
 		Input = false;
+		float Accel = Time.Deltatime * 32;
 
 		Gun_Cooldown -= Time.Deltatime;
 		if (Controls.ATK_1) {
@@ -164,12 +165,13 @@ private:
 
 			GameObj* BulletOBJ = GameObj::Create();
 			BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
+			//BulletOBJ->Transform.wPosition = CamSocket->Transform.getWorldPosition();
+
 			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
 			BulletOBJ->AddComponent(new Bullet(Bullet_Model));
 		}
 		else if(Gun_Cooldown<=0) {
 
-			float Accel = Time.Deltatime * 32;
 
 			if (Controls.MOVE_FWD) {
 				Input = true;
@@ -208,22 +210,30 @@ private:
 
 
 
-		//if (Input::GetKey(GLFW_KEY_E)) {
-		//	Input = true;  
-		//	Velocity.y += Accel;
-		//}
-		//else if (Input::GetKey(GLFW_KEY_Q)){
-		//	Input = true;
-		//	Velocity.y -= Accel;
-		//}
+		if (Input::GetKey(GLFW_KEY_E)) {
+			Input = true;  
+			Velocity.y += Accel;
+		}
+		else if (Input::GetKey(GLFW_KEY_Q)){
+			Input = true;
+			Velocity.y -= Accel;
+		}
 
 
-		//if (Input::GetKey(GLFW_KEY_LEFT)) {
-		//	CamArea->Transform.wRotation.y -= 150 * Time.Deltatime;
-		//}
-		//else if (Input::GetKey(GLFW_KEY_RIGHT)) {
-		//	CamArea->Transform.wRotation.y += 150 * Time.Deltatime;
-		//}
+		if (Input::GetKey(GLFW_KEY_LEFT)) {
+			CamArea->Transform.wRotation.y += 64 * Time.Deltatime;
+		}
+		else if (Input::GetKey(GLFW_KEY_RIGHT)) {
+			CamArea->Transform.wRotation.y -= 64 * Time.Deltatime;
+		}
+		if (Input::GetKey(GLFW_KEY_UP)) {
+			CamArea->Transform.wRotation.x -= 64 * Time.Deltatime;
+		}
+		else if (Input::GetKey(GLFW_KEY_DOWN)) {
+			CamArea->Transform.wRotation.x += 64 * Time.Deltatime;
+		}
+
+
 
 
 		float MaxVel = 5;
