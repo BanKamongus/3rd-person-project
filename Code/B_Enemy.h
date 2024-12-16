@@ -62,7 +62,7 @@ private:
 	float blendAmount = 0.0f;
 	float blendRate = 0.055f;
 
-	Model m_model;
+	Model_Bone m_model;
 	std::unique_ptr<Animator> m_animator;
 
 	Animation idleAnimation;
