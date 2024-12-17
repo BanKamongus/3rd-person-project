@@ -16,11 +16,11 @@ namespace Doozy {
 	class Doozy {
 		public:
 
-			Animation idleAnimation;
-			Animation walkAnimation;
-			Animation runAnimation;
-			Animation punchAnimation;
-			Animation KnockAnimation;
+			Animation* idleAnimation;
+			Animation* walkAnimation;
+			Animation* runAnimation;
+			Animation* punchAnimation;
+			Animation* KnockAnimation;
 			Model_Bone m_model;
 
 			Model_Static* Bullet_Model;
@@ -28,11 +28,11 @@ namespace Doozy {
 			Doozy()
 				: m_model("Assets/Models/mixamo/doozy/doozy.dae")
 			{
-				idleAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
-				walkAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
-				runAnimation = Animation("Assets/Models/mixamo/doozy/Run.dae", &m_model);
-				punchAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
-				KnockAnimation = Animation("Assets/Models/mixamo/doozy/Slipping.dae", &m_model);
+				idleAnimation = new Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				walkAnimation = new Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				runAnimation = new Animation("Assets/Models/mixamo/doozy/Run.dae", &m_model);
+				punchAnimation = new Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				KnockAnimation = new Animation("Assets/Models/mixamo/doozy/Slipping.dae", &m_model);
 
 				Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
 			}
@@ -105,11 +105,11 @@ private:
 	Model_Bone* m_model;
 	std::unique_ptr<Animator> m_animator;
 
-	Animation idleAnimation;
-	Animation walkAnimation;
-	Animation runAnimation;
-	Animation punchAnimation;
-	Animation KnockAnimation;
+	Animation* idleAnimation;
+	Animation* walkAnimation;
+	Animation* runAnimation;
+	Animation* punchAnimation;
+	Animation* KnockAnimation;
 
 	glm::vec3 Velocity;
 
@@ -139,13 +139,13 @@ private:
 
 				if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 4) {
 					GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
-					Anim_TransferTo(&runAnimation);
+					Anim_TransferTo(runAnimation);
 				}
 				else if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
-					Anim_TransferTo(&idleAnimation);
+					Shoot();
+					Anim_TransferTo(idleAnimation);
 				}
 			}
-			Shoot();
 
 			if (mCollider_Capsule->Event.isCollided) {
 				Bullet* GetBullet = nullptr;
@@ -156,7 +156,7 @@ private:
 					newEnemy->AddComponent(new Enemy);
 
 					DeathTimerStart = true; 
-					m_animator->PlayAnimation(&KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
+					m_animator->PlayAnimation(KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
 				}
 			}
 
@@ -208,34 +208,40 @@ private:
 	void Anim_TransferTo( Animation* Anim_Target) {
 
 
-		if (Anim_isTransfering) {
-
-			if (Anim_Alpha >= 1) {//Transfer success
-				Anim_isTransfering = false;
-				Anim_Current = Anim_Dest;
-				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, 1);
-				Anim_Alpha = 0;
-			}
-			else {
-				float Anim_TransferRate = 8;
-				Anim_Alpha += Time.Deltatime * Anim_TransferRate;
-				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, Anim_Alpha);
-
-			}
-		}
-		else
-		{
-			if (Anim_Current) {
-				if (Anim_Target != Anim_Current) {
-					Anim_Dest = Anim_Target;
-					Anim_isTransfering = true;
-				}
-			}
-			else {
+			if (Anim_Target != Anim_Current) {
 				Anim_Current = Anim_Target;
 				m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
 			}
-		}
+		
+
+		//if (Anim_isTransfering) {
+
+		//	if (Anim_Alpha >= 1) {//Transfer success
+		//		Anim_isTransfering = false;
+		//		Anim_Current = Anim_Dest;
+		//		m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, 1);
+		//		Anim_Alpha = 0;
+		//	}
+		//	else {
+		//		float Anim_TransferRate = 8;
+		//		Anim_Alpha += Time.Deltatime * Anim_TransferRate;
+		//		m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, Anim_Alpha);
+
+		//	}
+		//}
+		//else
+		//{
+		//	if (Anim_Current) {
+		//		if (Anim_Target != Anim_Current) {
+		//			Anim_Dest = Anim_Target;
+		//			Anim_isTransfering = true;
+		//		}
+		//	}
+		//	else {
+		//		Anim_Current = Anim_Target;
+		//		m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
+		//	}
+		//}
 
 	}
 
@@ -245,16 +251,16 @@ private:
 
 
 
-
+ 
 Enemy::Enemy()
 	: m_model(&Doozy::Data_->m_model)
-	, idleAnimation(Doozy::Data_->idleAnimation, m_model)
-	, walkAnimation(Doozy::Data_->walkAnimation, m_model)
-	, runAnimation(Doozy::Data_->runAnimation, m_model)
-	, punchAnimation(Doozy::Data_->punchAnimation, m_model)
-	, KnockAnimation(Doozy::Data_->KnockAnimation, m_model)
+	, idleAnimation(Doozy::Data_->idleAnimation)
+	, walkAnimation(Doozy::Data_->walkAnimation)
+	, runAnimation(Doozy::Data_->runAnimation)
+	, punchAnimation(Doozy::Data_->punchAnimation)
+	, KnockAnimation(Doozy::Data_->KnockAnimation)
 {
-	m_animator = std::make_unique<Animator>(&walkAnimation);
+	m_animator = std::make_unique<Animator>(walkAnimation);
 }
 
 void Enemy::Update()
@@ -262,14 +268,6 @@ void Enemy::Update()
 
 	Update_Behavior();
 
-	if (Input::GetKeyDown(GLFW_KEY_1))
-		m_animator->PlayAnimation(&idleAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_2))
-		m_animator->PlayAnimation(&walkAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_3))
-		m_animator->PlayAnimation(&punchAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_4))
-		m_animator->PlayAnimation(&KnockAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
 	m_animator->UpdateAnimation(Time.Deltatime);
 

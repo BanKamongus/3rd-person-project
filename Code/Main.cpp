@@ -42,9 +42,9 @@ int main()
         Enemy01->Transform.wPosition = glm::vec3(1, 0, 0);
         Enemy01->AddComponent(new Enemy);
  
-     GameObj* Enemy02 = GameObj::Create();
-        Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
-        Enemy02->AddComponent(new Enemy);
+     //GameObj* Enemy02 = GameObj::Create();
+     //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
+     //   Enemy02->AddComponent(new Enemy);
  
 
 

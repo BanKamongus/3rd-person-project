@@ -145,7 +145,7 @@ private:
 
 	enum AnimState charState = IDLE;
 	float blendAmount = 0.0f;
-	float blendRate = 0.055f;
+
 
 	Model_Bone m_model;
 	std::unique_ptr<Animator> m_animator;
@@ -309,6 +309,8 @@ void Player::Update()
 	if (Input::GetKeyDown(GLFW_KEY_4))
 		m_animator->PlayAnimation(&kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
+
+	float blendRate = Time.Deltatime*5;
 	switch (charState) {
 	case IDLE:
 		if (Input) {
@@ -330,7 +332,6 @@ void Player::Update()
 		break;
 	case IDLE_WALK:
 		blendAmount += blendRate;
-		blendAmount = fmod(blendAmount, 1.0f);
 		m_animator->PlayAnimation(&idleAnimation, &runAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
@@ -349,7 +350,6 @@ void Player::Update()
 		break;
 	case WALK_IDLE:
 		blendAmount += blendRate;
-		blendAmount = fmod(blendAmount, 1.0f);
 		m_animator->PlayAnimation(&runAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
@@ -361,7 +361,6 @@ void Player::Update()
 		break;
 	case IDLE_PUNCH:
 		blendAmount += blendRate;
-		blendAmount = fmod(blendAmount, 1.0f);
 		m_animator->PlayAnimation(&idleAnimation, &punchAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
@@ -374,7 +373,6 @@ void Player::Update()
 	case PUNCH_IDLE:
 		if (m_animator->m_CurrentTime > 0.7f) {
 			blendAmount += blendRate;
-			blendAmount = fmod(blendAmount, 1.0f);
 			m_animator->PlayAnimation(&punchAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 			if (blendAmount > 0.9f) {
 				blendAmount = 0.0f;
@@ -391,7 +389,6 @@ void Player::Update()
 		break;
 	case IDLE_KICK:
 		blendAmount += blendRate;
-		blendAmount = fmod(blendAmount, 1.0f);
 		m_animator->PlayAnimation(&idleAnimation, &kickAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 		if (blendAmount > 0.9f) {
 			blendAmount = 0.0f;
@@ -404,7 +401,6 @@ void Player::Update()
 	case KICK_IDLE:
 		if (m_animator->m_CurrentTime > 1.0f) {
 			blendAmount += blendRate;
-			blendAmount = fmod(blendAmount, 1.0f);
 			m_animator->PlayAnimation(&kickAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
 			if (blendAmount > 0.9f) {
 				blendAmount = 0.0f;
