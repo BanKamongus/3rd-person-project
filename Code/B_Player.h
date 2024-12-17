@@ -10,14 +10,22 @@
 
 class Bullet : public BanKBehavior 
 {
+
 public:
+
+	static 	enum Team
+	{
+		Player = 0,
+		Enemy
+	};
+
 	float lifespan = 0.72;
 	float Speed = 0.64f;
 	Model_Static* m_model;
 	Collider_Capsule* mCollider_Capsule;
+	int Team = Bullet::Player;
 
 	Bullet(Model_Static* m_model) :m_model(m_model) {
-
 	}
 
 	void Init() {
@@ -25,6 +33,7 @@ public:
 		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
 		mCollider_Capsule->Radius = 0.05f;
 		mCollider_Capsule->Height = 0.1f;
+		mCollider_Capsule->Trigger = true;
 
 	}
 
@@ -102,7 +111,7 @@ public:
 			CamSocket->Transform.wPosition = glm::vec3(-0.25, 0, -1)*2.0f;
 
 			CamLookat = CamArea->CreateChild();
-			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0, 1)*2.0f;
+			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0, 1)*9999.0f;
 				
 
 
@@ -164,8 +173,11 @@ private:
 			Gun_Cooldown = Gun_CooldownMax;
 
 			GameObj* BulletOBJ = GameObj::Create();
-			BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
-			//BulletOBJ->Transform.wPosition = CamSocket->Transform.getWorldPosition();
+
+			//BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
+			BulletOBJ->Transform.wPosition = CamSocket->Transform.getWorldPosition();
+
+			//BulletOBJ->Transform.LookAt(CamLookat->Transform.wPosition);
 
 			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
 			BulletOBJ->AddComponent(new Bullet(Bullet_Model));

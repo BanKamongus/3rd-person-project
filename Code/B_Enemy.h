@@ -23,14 +23,18 @@ namespace Doozy {
 			Animation KnockAnimation;
 			Model_Bone m_model;
 
+			Model_Static* Bullet_Model;
+
 			Doozy()
 				: m_model("Assets/Models/mixamo/doozy/doozy.dae")
 			{
 				idleAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
 				walkAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
-				runAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
+				runAnimation = Animation("Assets/Models/mixamo/doozy/Run.dae", &m_model);
 				punchAnimation = Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
 				KnockAnimation = Animation("Assets/Models/mixamo/doozy/Slipping.dae", &m_model);
+
+				Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
 			}
 
 	}*Data_;
@@ -98,7 +102,7 @@ private:
 	float blendAmount = 0.0f;
 	float blendRate = 0.055f;
 
-	Model_Bone m_model;
+	Model_Bone* m_model;
 	std::unique_ptr<Animator> m_animator;
 
 	Animation idleAnimation;
@@ -110,8 +114,8 @@ private:
 	glm::vec3 Velocity;
 
 	glm::vec3 TargetPos;
-	float FollowSpeed = 0.5f;
-	float Speed = 1.5;
+	float FollowSpeed = 10;
+	float Speed = 5;
 
 
 
@@ -119,34 +123,62 @@ private:
 	bool DeathTimerStart = false;
 	void Update_Behavior() {
 		if (Time.Deltatime > 0.1) { return; }
-		 
-		if (TargetPLR) {
-			//TargetPos = B_lerpVec3(TargetPos,TargetPLR->GameObject->Transform.wPosition,Time.Deltatime* FollowSpeed);
-			//GameObject->Transform.LookAt(TargetPos);
-			
-			if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
-				//GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
-			}
-		}
-
-		if (mCollider_Capsule->Event.isCollided) {
-			Bullet* GetBullet = nullptr;
-			GetBullet = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetBullet);
-			if (GetBullet && !DeathTimerStart) {
-				GameObj* newEnemy = GameObj::Create();
-				newEnemy->Transform.wPosition = GameObject->Transform.wPosition + glm::vec3(1,0,0);
-				newEnemy->AddComponent(new Enemy);
-
-				DeathTimerStart = true;
-				m_animator->PlayAnimation(&KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
-			}
-		}
+		
 
 		if (DeathTimerStart) {
 			DeathTimer -= Time.Deltatime;
 			if (DeathTimer < 0) {
 				GameObject->Destroy = true;
 			}
+		}
+		else
+		{
+			if (TargetPLR) {
+				TargetPos = B_lerpVec3(TargetPos, TargetPLR->GameObject->Transform.wPosition, Time.Deltatime * FollowSpeed);
+				GameObject->Transform.LookAt(TargetPos);
+
+				if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 4) {
+					GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
+					Anim_TransferTo(&runAnimation);
+				}
+				else if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
+					Anim_TransferTo(&idleAnimation);
+				}
+			}
+			Shoot();
+
+			if (mCollider_Capsule->Event.isCollided) {
+				Bullet* GetBullet = nullptr;
+				GetBullet = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetBullet);
+				if (GetBullet && GetBullet->Team == Bullet::Player) {
+					GameObj* newEnemy = GameObj::Create();
+					newEnemy->Transform.wPosition = GameObject->Transform.wPosition + glm::vec3(1, 0, 0);
+					newEnemy->AddComponent(new Enemy);
+
+					DeathTimerStart = true; 
+					m_animator->PlayAnimation(&KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
+				}
+			}
+
+		}
+	}
+
+
+	float ShootCooldown = 1;
+	float ShootTimer = 0;
+	void Shoot() {
+
+		if (ShootTimer > ShootCooldown) {
+			ShootTimer = 0;
+			GameObj* BulletOBJ = GameObj::Create();
+			BulletOBJ->Transform.wPosition = GameObject->Transform.wPosition;
+
+			BulletOBJ->Transform.wRotation = GameObject->Transform.wRotation;
+			BulletOBJ->AddComponent(new Bullet(Doozy::Data_->Bullet_Model))->Team = Bullet::Enemy;
+		}
+		else
+		{
+			ShootTimer += Time.Deltatime;
 		}
 	}
 
@@ -164,9 +196,49 @@ private:
 
 
 		shader.setMat4("model", BODY->Transform.modelMatrix);
-		m_model.Draw(shader);
+		m_model->Draw(shader); 
 
 	}
+
+
+	Animation* Anim_Current;
+	Animation* Anim_Dest;
+	bool Anim_isTransfering = false;
+	float Anim_Alpha = 0;
+	void Anim_TransferTo( Animation* Anim_Target) {
+
+
+		if (Anim_isTransfering) {
+
+			if (Anim_Alpha >= 1) {//Transfer success
+				Anim_isTransfering = false;
+				Anim_Current = Anim_Dest;
+				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, 1);
+				Anim_Alpha = 0;
+			}
+			else {
+				float Anim_TransferRate = 8;
+				Anim_Alpha += Time.Deltatime * Anim_TransferRate;
+				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, Anim_Alpha);
+
+			}
+		}
+		else
+		{
+			if (Anim_Current) {
+				if (Anim_Target != Anim_Current) {
+					Anim_Dest = Anim_Target;
+					Anim_isTransfering = true;
+				}
+			}
+			else {
+				Anim_Current = Anim_Target;
+				m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
+			}
+		}
+
+	}
+
 
 };
 
@@ -175,12 +247,12 @@ private:
 
 
 Enemy::Enemy()
-	: m_model(Doozy::Data_->m_model)
-	, idleAnimation(Doozy::Data_->idleAnimation, &m_model)
-	, walkAnimation(Doozy::Data_->walkAnimation, &m_model)
-	, runAnimation(Doozy::Data_->runAnimation, &m_model)
-	, punchAnimation(Doozy::Data_->punchAnimation, &m_model)
-	, KnockAnimation(Doozy::Data_->KnockAnimation, &m_model)
+	: m_model(&Doozy::Data_->m_model)
+	, idleAnimation(Doozy::Data_->idleAnimation, m_model)
+	, walkAnimation(Doozy::Data_->walkAnimation, m_model)
+	, runAnimation(Doozy::Data_->runAnimation, m_model)
+	, punchAnimation(Doozy::Data_->punchAnimation, m_model)
+	, KnockAnimation(Doozy::Data_->KnockAnimation, m_model)
 {
 	m_animator = std::make_unique<Animator>(&walkAnimation);
 }

@@ -32,7 +32,10 @@ class Collider_Base : public BanKBehavior {
 	
 	public:
 		int Shape = B_ColliderShape::NaN;
+		bool Trigger = false;
+
 		CollideEvent Event;
+		
 
 		Collider_Base() {
 			sCollider_Base.push_back(this);
@@ -93,6 +96,8 @@ namespace B_ColliderShape {
 			if (Distance < RadSum && HeightCollide) {
 				Coll_A->Event.isCollided = Coll_B->Event.isCollided = true;
 				Coll_A->Event.Other = Coll_B; Coll_B->Event.Other = Coll_A;
+
+				if (Coll_A->Trigger || Coll_B->Trigger) { return; }
 
 				Transform Hit_Cal; 
 				Hit_Cal.wPosition = Coll_A->GameObject->Transform.wPosition;

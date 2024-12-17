@@ -28,7 +28,6 @@ int main()
     GameObj* PlayerOBJ = GameObj::Create();
         PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         Player* Player_Bhav = PlayerOBJ->AddComponent(new Player);
-        PlayerOBJ->AddComponent(new Collider_Capsule);
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();

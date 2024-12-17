@@ -106,6 +106,7 @@ public:
 		}
 	}
 
+
 	void PlayAnimation(Animation* pAnimation, Animation* pAnimation2, float time1, float time2, float blend)
 	{
 		m_CurrentAnimation = pAnimation;
