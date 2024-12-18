@@ -30,6 +30,7 @@ struct KeyScale
 
 class Bone
 {
+	glm::mat4 Mat4one = glm::mat4(1.0f);
 public:
 	Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 		:
@@ -132,7 +133,7 @@ public:
 	glm::mat4 InterpolatePosition(float animationTime, glm::vec3 &finalPos)
 	{
 		if (1 == m_NumPositions)
-			return glm::translate(glm::mat4(1.0f), m_Positions[0].position);
+			return glm::translate(Mat4one, m_Positions[0].position);
 
 		int p0Index = GetPositionIndex(animationTime);
 		int p1Index = p0Index + 1;
@@ -141,7 +142,7 @@ public:
 		glm::vec3 finalPosition = glm::mix(m_Positions[p0Index].position, m_Positions[p1Index].position
 			, scaleFactor);
 		finalPos = finalPosition;
-		return glm::translate(glm::mat4(1.0f), finalPosition);
+		return glm::translate(Mat4one, finalPosition);
 	}
 
 	glm::mat4 InterpolateRotation(float animationTime, glm::quat &finalQuat)
@@ -167,7 +168,7 @@ public:
 	glm::mat4 InterpolateScaling(float animationTime, glm::vec3 &finalScaling)
 	{
 		if (1 == m_NumScalings)
-			return glm::scale(glm::mat4(1.0f), m_Scales[0].scale);
+			return glm::scale(Mat4one, m_Scales[0].scale);
 
 		int p0Index = GetScaleIndex(animationTime);
 		int p1Index = p0Index + 1;
@@ -176,7 +177,7 @@ public:
 		glm::vec3 finalScale = glm::mix(m_Scales[p0Index].scale, m_Scales[p1Index].scale
 			, scaleFactor);
 		finalScaling = finalScale;
-		return glm::scale(glm::mat4(1.0f), finalScale);
+		return glm::scale(Mat4one, finalScale);
 	}
 
 	std::vector<KeyPosition> m_Positions;

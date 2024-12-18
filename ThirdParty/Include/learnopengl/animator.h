@@ -137,9 +137,7 @@ public:
 		glm::mat4 rotation = glm::toMat4(finalRot);
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), finalScale);
 
-		glm::mat4 TRS = glm::mat4(1.0f);
-		TRS = translation * rotation * scale;
-		return TRS;
+		return translation * rotation * scale;
 	}
 
 	void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)

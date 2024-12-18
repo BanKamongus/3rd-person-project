@@ -19,8 +19,8 @@ public:
 		Enemy
 	};
 
-	float lifespan = 0.72;
-	float Speed = 0.64f;
+	float lifespan = 0.64;
+	float Speed = 0.8f;
 	Model_Static* m_model;
 	Collider_Capsule* mCollider_Capsule;
 	int Team = Bullet::Player;
@@ -29,7 +29,7 @@ public:
 	}
 
 	void Init() {
-		GameObject->Transform.wScale = glm::vec3(0.25f);
+		GameObject->Transform.wScale = glm::vec3(0.16f);
 		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
 		mCollider_Capsule->Radius = 0.05f;
 		mCollider_Capsule->Height = 0.1f;
@@ -46,7 +46,7 @@ public:
 		}
 
 		if (mCollider_Capsule->Event.isCollided) {
-			//GameObject->Destroy = true;
+			//GameObject->Destroy = true; 
 		}
 	}
 
@@ -94,6 +94,7 @@ public:
 	const float Gun_CooldownMax = 0.25f;
 	float Gun_Cooldown = 0;
 	Model_Static* Bullet_Model;
+	Collider_Capsule* mCollider_Capsule;
 
 	GameObj* CamArea;
 	GameObj* CamSocket;
@@ -102,7 +103,10 @@ public:
 	float BODY_RotProbe_TargetRot;
 	GameObj* BODY;
 	float BODY_TargetRot;
+
 	void Init() {
+
+		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
 
 		CamArea = GameObject->CreateChild();
 		CamArea->Transform.wPosition = glm::vec3(0, 1.25, 0);
@@ -111,7 +115,8 @@ public:
 			CamSocket->Transform.wPosition = glm::vec3(-0.25, 0, -1)*2.0f;
 
 			CamLookat = CamArea->CreateChild();
-			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0, 1)*9999.0f;
+			CamLookat->Transform.wPosition = glm::vec3(-0.25, 0, 1)*99999.0f;
+			CamLookat->Transform.wPosition.x += 0.05;
 				
 
 
@@ -170,17 +175,14 @@ private:
 		if (Controls.ATK_1) {
 			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
 			BODY_TargetRot = 0;
-			Gun_Cooldown = Gun_CooldownMax;
+			Gun_Cooldown = Gun_CooldownMax; 
 
 			GameObj* BulletOBJ = GameObj::Create();
 
-			//BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
-			BulletOBJ->Transform.wPosition = CamSocket->Transform.getWorldPosition();
-
-			//BulletOBJ->Transform.LookAt(CamLookat->Transform.wPosition);
-
-			BulletOBJ->Transform.wRotation = CamArea->Transform.wRotation;
+			BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
+			BulletOBJ->Transform.LookAt(CamLookat->Transform.getWorldPosition());
 			BulletOBJ->AddComponent(new Bullet(Bullet_Model));
+
 		}
 		else if(Gun_Cooldown<=0) {
 
@@ -259,12 +261,13 @@ private:
 
 		CamArea->Transform.wRotation.y -= 0.5f * Controls.TURN_Y;
 		CamArea->Transform.wRotation.x += 0.5f * Controls.TURN_X;
-		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -32, 32);
+		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -90, 90);
 
 
 		if (Input) {
 			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
 		}
+		 
 
 
 		float RotSpd_A = 10 * Time.Deltatime;
@@ -310,7 +313,7 @@ void Player::Update()
 		m_animator->PlayAnimation(&kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
 
-	float blendRate = Time.Deltatime*5;
+	float blendRate = Time.Deltatime*4;
 	switch (charState) {
 	case IDLE:
 		if (Input) {

@@ -208,40 +208,40 @@ private:
 	void Anim_TransferTo( Animation* Anim_Target) {
 
 
-			if (Anim_Target != Anim_Current) {
+			//if (Anim_Target != Anim_Current) {
+			//	Anim_Current = Anim_Target;
+			//	m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
+			//}
+		
+		 
+		if (Anim_isTransfering) {
+
+			if (Anim_Alpha >= 1) {//Transfer success
+				Anim_isTransfering = false;
+				Anim_Current = Anim_Dest;
+				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, 1);
+				Anim_Alpha = 0;
+			}
+			else {
+				float Anim_TransferRate = 8;
+				Anim_Alpha += Time.Deltatime * Anim_TransferRate;
+				m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, Anim_Alpha);
+
+			}
+		}
+		else
+		{
+			if (Anim_Current) {
+				if (Anim_Target != Anim_Current) {
+					Anim_Dest = Anim_Target;
+					Anim_isTransfering = true;
+				}
+			}
+			else {
 				Anim_Current = Anim_Target;
 				m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
 			}
-		
-
-		//if (Anim_isTransfering) {
-
-		//	if (Anim_Alpha >= 1) {//Transfer success
-		//		Anim_isTransfering = false;
-		//		Anim_Current = Anim_Dest;
-		//		m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, 1);
-		//		Anim_Alpha = 0;
-		//	}
-		//	else {
-		//		float Anim_TransferRate = 8;
-		//		Anim_Alpha += Time.Deltatime * Anim_TransferRate;
-		//		m_animator->PlayAnimation(Anim_Current, Anim_Dest, 0.2, 0.2, Anim_Alpha);
-
-		//	}
-		//}
-		//else
-		//{
-		//	if (Anim_Current) {
-		//		if (Anim_Target != Anim_Current) {
-		//			Anim_Dest = Anim_Target;
-		//			Anim_isTransfering = true;
-		//		}
-		//	}
-		//	else {
-		//		Anim_Current = Anim_Target;
-		//		m_animator->PlayAnimation(Anim_Target, NULL, 0.2, 0.0f, 0.0f);
-		//	}
-		//}
+		}
 
 	}
 
