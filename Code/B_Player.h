@@ -91,7 +91,9 @@ public:
 	GameObj* Gun_OBJ;
 	Model_Static* Gun_Model;
 	glm::mat4 Gun_Matrix;
-	const float Gun_CooldownMax = 0.25f;
+	const float Gun_AnimCooldownMax = 0.25f;
+	float Gun_AnimCooldown = 0;
+	const float Gun_CooldownMax = 0.1f;
 	float Gun_Cooldown = 0;
 	Model_Static* Bullet_Model;
 	Collider_Capsule* mCollider_Capsule;
@@ -171,20 +173,26 @@ private:
 		Input = false;
 		float Accel = Time.Deltatime * 32;
 
-		Gun_Cooldown -= Time.Deltatime;
+		Gun_Cooldown += Time.Deltatime;
+		Gun_AnimCooldown -= Time.Deltatime;
 		if (Controls.ATK_1) {
 			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
 			BODY_TargetRot = 0;
-			Gun_Cooldown = Gun_CooldownMax; 
+			Gun_AnimCooldown = Gun_AnimCooldownMax; 
 
-			GameObj* BulletOBJ = GameObj::Create();
+			if (Gun_Cooldown > Gun_CooldownMax) {
+				Gun_Cooldown = 0;
+				GameObj* BulletOBJ = GameObj::Create();
+				BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
+				BulletOBJ->Transform.LookAt(CamLookat->Transform.getWorldPosition());
+				BulletOBJ->AddComponent(new Bullet(Bullet_Model));
 
-			BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
-			BulletOBJ->Transform.LookAt(CamLookat->Transform.getWorldPosition());
-			BulletOBJ->AddComponent(new Bullet(Bullet_Model));
+				CamArea->Transform.wRotation.x -= B_irand(-2,5);
+				CamArea->Transform.wRotation.y += B_irand(-5,5);
+			}
 
 		}
-		else if(Gun_Cooldown<=0) {
+		else if(Gun_AnimCooldown<=0) {
 
 
 			if (Controls.MOVE_FWD) {

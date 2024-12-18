@@ -157,6 +157,8 @@ private:
 
 					DeathTimerStart = true; 
 					m_animator->PlayAnimation(KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
+
+					GetBullet->GameObject->Destroy = true;
 				}
 			}
 
