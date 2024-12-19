@@ -61,7 +61,7 @@ class BanKBehavior {
 	bool didTrue_Start = false;
 public:
 
-	bool Destroy = false;
+	//bool Destroy = false;
 
 	string SerialID = "Unknown";
 	GameObj* GameObject;
@@ -119,10 +119,26 @@ class Transform : public BanKBehavior {
 	const glm::mat4 mat4one = glm::mat4(1.0f);
 public:
 	Transform* Parent;
+	vector<Transform*> Children;
 
 	Transform() {
 		SerialID = "Transform";
 	} 
+
+	void ParentAttatch(Transform* TargetParent) {
+		Parent = TargetParent;
+		TargetParent->Children.push_back(this);
+	}
+
+	void ParentDetatch() {
+		for (size_t i = 0; i < Parent->Children.size(); ++i) {
+			if (Parent->Children[i] == this) {
+				Parent->Children.erase(Parent->Children.begin() + i);
+				break;
+			}
+		}
+		Parent = nullptr;
+	}
 
 	glm::vec3 wPosition = glm::vec3(0,0,0 );
 	glm::vec3 wRotation = glm::vec3(0, 0.1, 0);
@@ -284,6 +300,7 @@ class Renderer;
 											Renderer* Renderer;
 										}Try;
 										Transform Transform;
+										vector<GameObj*> Children;
 
 										bool Destroy = false;
 
@@ -292,7 +309,8 @@ class Renderer;
 										/// Relation  ///////////////////
 														GameObj* CreateChild() {
 															GameObj* NewOBJ = new GameObj; 
-															NewOBJ->Transform.Parent = &Transform;
+															Children.push_back(NewOBJ);
+															NewOBJ->Transform.ParentAttatch(&Transform);
 
 															NewOBJ->True_Start();
 															return NewOBJ;

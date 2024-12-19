@@ -45,7 +45,15 @@ namespace BanKEngine {
 							pInst->Update();
 						}
 
-		for (GameObj* pInst : sGameObjs) {//Destroy
+		for (GameObj* pInst : sGameObjs) {//Destroy Children
+			if (pInst->Destroy) { 
+				for (GameObj* Each : pInst->Children) {
+					Each->Destroy = true;
+				}
+			}
+		}
+
+		for (GameObj* pInst : sGameObjs) {//True Destruction
 			if (pInst->Destroy) { GameObj::DestroyObj(pInst); }
 		}
 
