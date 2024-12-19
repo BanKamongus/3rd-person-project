@@ -17,6 +17,7 @@ int main()
     Renderer renderer;
     glfwSwapInterval(0);
     Doozy::Load();
+    Steve::Load();
 
 
     //Camera
@@ -25,9 +26,8 @@ int main()
         B_Camera* Camera_Bhav = CameraOBJ->AddComponent(new B_Camera);
 
     //Player
-    GameObj* PlayerOBJ = GameObj::Create();
-        PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
-        Player* Player_Bhav = PlayerOBJ->AddComponent(new Player);
+    GameObj* PlayerOBJ = nullptr;
+        Player* Player_Bhav = nullptr;
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
@@ -85,8 +85,22 @@ int main()
          
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
-        float LerpSpeed = 16 * Time.Deltatime;
-        CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
-        Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);
+
+        if (sGetComponent_OfClass(Player_Bhav)) {
+                float LerpSpeed = 16 * Time.Deltatime;
+                CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
+                Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);     
+        }
+        else
+        {
+            PlayerOBJ = GameObj::Create();
+            PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
+            Player_Bhav = PlayerOBJ->AddComponent(new Player);
+
+            TargetPLR = Player_Bhav;
+        }
+
+
+      
     }
 }

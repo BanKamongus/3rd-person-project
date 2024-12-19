@@ -8,6 +8,50 @@
 #include <learnopengl/animator.h>
 #include <learnopengl/model_animation.h>
 
+
+
+
+namespace Steve {
+	class Steve {
+	public:
+
+		Animation* idleAnimation;
+		Animation* walkAnimation;
+		Animation* runAnimation;
+		Animation* DeadAnimation;
+		Animation* kickAnimation;
+		Animation* HitAnimation;
+		Model_Bone m_model;
+
+		Model_Static* Bullet_Model;
+		Model_Static* Gun_Model;
+
+		Steve()
+			: m_model("Assets/Models/mixamo/steve.dae")
+		{
+			idleAnimation = new Animation("Assets/Models/mixamo/Rifle Aiming Idle.dae", &m_model);
+			walkAnimation = new Animation("Assets/Models/mixamo/walk.dae", &m_model);
+			runAnimation = new Animation("Assets/Models/mixamo/Rifle Run.dae", &m_model);
+			DeadAnimation = new Animation("Assets/Models/mixamo/Dying.dae", &m_model);
+			kickAnimation = new Animation("Assets/Models/mixamo/kick.dae", &m_model);
+			HitAnimation = new Animation("Assets/Models/mixamo/Hit Reaction.dae", &m_model);
+
+			Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
+			Gun_Model = new Model_Static("Assets/Models/AK47/OBJ/ak7finished.obj");
+		}
+
+	}*Data_;
+
+	void Load() {
+		Data_ = new Steve;
+	}
+
+}
+
+
+
+
+
 class Bullet : public BanKBehavior 
 {
 
@@ -31,7 +75,7 @@ public:
 	void Init() {
 		GameObject->Transform.wScale = glm::vec3(0.16f);
 		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule);
-		mCollider_Capsule->Radius = 0.05f;
+		mCollider_Capsule->Radius = 0.5f;
 		mCollider_Capsule->Height = 0.1f;
 		mCollider_Capsule->Trigger = true;
 
@@ -59,8 +103,13 @@ public:
 	}
 };
 
+
+
+
 class Player : public BanKBehavior
 {
+	bool Dead = false;
+	float DeadTimer = 3;
 public:
 
 	struct Controls {
@@ -88,14 +137,13 @@ public:
 	void Update();
 	void Render(Renderer& renderer);
 
+	int Health = 3;
 	GameObj* Gun_OBJ;
-	Model_Static* Gun_Model;
 	glm::mat4 Gun_Matrix;
 	const float Gun_AnimCooldownMax = 0.25f;
 	float Gun_AnimCooldown = 0;
 	const float Gun_CooldownMax = 0.1f;
 	float Gun_Cooldown = 0;
-	Model_Static* Bullet_Model;
 	Collider_Capsule* mCollider_Capsule;
 
 	GameObj* CamArea;
@@ -133,9 +181,6 @@ public:
 
 
 
-
-		Gun_Model = new Model_Static("Assets/Models/AK47/OBJ/ak7finished.obj");
-		Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
 	}
 
 private:
@@ -157,11 +202,11 @@ private:
 	Model_Bone m_model;
 	std::unique_ptr<Animator> m_animator;
 
-	Animation idleAnimation;
-	Animation walkAnimation;
-	Animation runAnimation;
-	Animation punchAnimation;
-	Animation kickAnimation;
+	Animation* idleAnimation;
+	Animation* walkAnimation;
+	Animation* runAnimation;
+	Animation* DeadAnimation;
+	Animation* kickAnimation;
 
 	glm::vec3 Velocity;
 
@@ -185,7 +230,7 @@ private:
 				GameObj* BulletOBJ = GameObj::Create();
 				BulletOBJ->Transform.wPosition = getDirectPosition(Gun_Matrix);
 				BulletOBJ->Transform.LookAt(CamLookat->Transform.getWorldPosition());
-				BulletOBJ->AddComponent(new Bullet(Bullet_Model));
+				BulletOBJ->AddComponent(new Bullet(Steve::Data_->Bullet_Model));
 
 				CamArea->Transform.wRotation.x -= B_irand(-2,5);
 				CamArea->Transform.wRotation.y += B_irand(-5,5);
@@ -282,7 +327,158 @@ private:
 		float RotSpd_B = 12 * Time.Deltatime;
 		BODY_RotProbe->Transform.wRotation.y = B_lerp(BODY_RotProbe->Transform.wRotation.y, BODY_RotProbe_TargetRot, RotSpd_A);
 		BODY->Transform.wRotation.y = B_lerp(BODY->Transform.wRotation.y, BODY_TargetRot, RotSpd_B);
+
+
+
+		if (mCollider_Capsule->Event.isCollided) {
+			Bullet* GetBull = nullptr;
+			GetBull = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetBull);
+			if (GetBull) {
+				if (GetBull->Team == Bullet::Enemy) {
+					m_animator->PlayAnimation(Steve::Data_->HitAnimation, NULL, 0.1, 0.0f, 0.0f); 
+					GetBull->GameObject->Destroy = true;
+
+					Health--;
+					if(Health <=0){
+						Dead = true;
+						m_animator->PlayAnimation(DeadAnimation, NULL, 0.0f, 0.0f, 0.0f);
+					}
+				}
+			}
+		}
+
+
+		if (Input::GetKey(GLFW_KEY_F)) {
+			Dead = true;
+			m_animator->PlayAnimation(DeadAnimation, NULL, 0.0f, 0.0f, 0.0f);
+		}
+
+		
 	}
+
+	
+
+
+	void Animate() {
+		if (Input::GetKeyDown(GLFW_KEY_1))
+			m_animator->PlayAnimation(idleAnimation, NULL, 0.0f, 0.0f, 0.0f);
+		if (Input::GetKeyDown(GLFW_KEY_2))
+			m_animator->PlayAnimation(walkAnimation, NULL, 0.0f, 0.0f, 0.0f);
+		if (Input::GetKeyDown(GLFW_KEY_3))
+			m_animator->PlayAnimation(DeadAnimation, NULL, 0.0f, 0.0f, 0.0f);
+		if (Input::GetKeyDown(GLFW_KEY_4))
+			m_animator->PlayAnimation(kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
+
+
+		float blendRate = Time.Deltatime * 4;
+		switch (charState) {
+		case IDLE:
+			if (Input) {
+				blendAmount = 0.0f;
+				m_animator->PlayAnimation(idleAnimation, walkAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
+				charState = IDLE_WALK;
+			}
+			else if (Input::GetKey(GLFW_KEY_J)) {
+				blendAmount = 0.0f;
+				m_animator->PlayAnimation(idleAnimation, DeadAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
+				charState = IDLE_PUNCH;
+			}
+			else if (Input::GetKey(GLFW_KEY_K)) {
+				blendAmount = 0.0f;
+				m_animator->PlayAnimation(idleAnimation, kickAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
+				charState = IDLE_KICK;
+			}
+			printf("idle \n");
+			break;
+		case IDLE_WALK:
+			blendAmount += blendRate;
+			m_animator->PlayAnimation(idleAnimation, runAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+			if (blendAmount > 0.9f) {
+				blendAmount = 0.0f;
+				float startTime = m_animator->m_CurrentTime2;
+				m_animator->PlayAnimation(runAnimation, NULL, startTime, 0.0f, blendAmount);
+				charState = WALK;
+			}
+			printf("idle_walk \n");
+			break;
+		case WALK:
+			m_animator->PlayAnimation(runAnimation, NULL, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+			if (!Input) {
+				charState = WALK_IDLE;
+			}
+			printf("walking\n");
+			break;
+		case WALK_IDLE:
+			blendAmount += blendRate;
+			m_animator->PlayAnimation(runAnimation, idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+			if (blendAmount > 0.9f) {
+				blendAmount = 0.0f;
+				float startTime = m_animator->m_CurrentTime2;
+				m_animator->PlayAnimation(idleAnimation, NULL, startTime, 0.0f, blendAmount);
+				charState = IDLE;
+			}
+			printf("walk_idle \n");
+			break;
+		case IDLE_PUNCH:
+			blendAmount += blendRate;
+			m_animator->PlayAnimation(idleAnimation, DeadAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+			if (blendAmount > 0.9f) {
+				blendAmount = 0.0f;
+				float startTime = m_animator->m_CurrentTime2;
+				m_animator->PlayAnimation(DeadAnimation, NULL, startTime, 0.0f, blendAmount);
+				charState = PUNCH_IDLE;
+			}
+			printf("idle_punch\n");
+			break;
+		case PUNCH_IDLE:
+			if (m_animator->m_CurrentTime > 0.7f) {
+				blendAmount += blendRate;
+				m_animator->PlayAnimation(DeadAnimation, idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+				if (blendAmount > 0.9f) {
+					blendAmount = 0.0f;
+					float startTime = m_animator->m_CurrentTime2;
+					m_animator->PlayAnimation(idleAnimation, NULL, startTime, 0.0f, blendAmount);
+					charState = IDLE;
+				}
+				printf("punch_idle \n");
+			}
+			else {
+				// punching
+				printf("punching \n");
+			}
+			break;
+		case IDLE_KICK:
+			blendAmount += blendRate;
+			m_animator->PlayAnimation(idleAnimation, kickAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+			if (blendAmount > 0.9f) {
+				blendAmount = 0.0f;
+				float startTime = m_animator->m_CurrentTime2;
+				m_animator->PlayAnimation(kickAnimation, NULL, startTime, 0.0f, blendAmount);
+				charState = KICK_IDLE;
+			}
+			printf("idle_kick\n");
+			break;
+		case KICK_IDLE:
+			if (m_animator->m_CurrentTime > 1.0f) {
+				blendAmount += blendRate;
+				m_animator->PlayAnimation(kickAnimation, idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
+				if (blendAmount > 0.9f) {
+					blendAmount = 0.0f;
+					float startTime = m_animator->m_CurrentTime2;
+					m_animator->PlayAnimation(idleAnimation, NULL, startTime, 0.0f, blendAmount);
+					charState = IDLE;
+				}
+				printf("kick_idle \n");
+			}
+			else {
+				// punching
+				printf("kicking \n");
+			}
+			break;
+		}
+	}
+
+
 };
 
 
@@ -292,147 +488,38 @@ private:
 #include <GLFW/glfw3.h>
 
 Player::Player()
-	: m_model("Assets/Models/mixamo/steve.dae")
-	, idleAnimation("Assets/Models/mixamo/Rifle Aiming Idle.dae", &m_model)
-	, walkAnimation("Assets/Models/mixamo/walk.dae", &m_model)
-	, runAnimation("Assets/Models/mixamo/Rifle Run.dae", &m_model)
-	, punchAnimation("Assets/Models/mixamo/punch.dae", &m_model)
-	, kickAnimation("Assets/Models/mixamo/kick.dae", &m_model)
+	: m_model(Steve::Data_->m_model)
+	, idleAnimation(Steve::Data_->idleAnimation)
+	, walkAnimation(Steve::Data_->walkAnimation)
+	, runAnimation(Steve::Data_->runAnimation)
+	, DeadAnimation(Steve::Data_->DeadAnimation)
+	, kickAnimation(Steve::Data_->kickAnimation)
 {
-	m_animator = std::make_unique<Animator>(&idleAnimation);
+	m_animator = std::make_unique<Animator>(idleAnimation);
 
-	std::map<std::string, BoneInfo>::iterator it;
-	auto boneInfoMap = m_animator->m_CurrentAnimation->GetBoneIDMap();
-	for (it = boneInfoMap.begin(); it != boneInfoMap.end(); it++) {
-		cout << it->first
-			<< " " << it->second.id << std::endl;
-	}
+	//std::map<std::string, BoneInfo>::iterator it;
+	//auto boneInfoMap = m_animator->m_CurrentAnimation->GetBoneIDMap();
+	//for (it = boneInfoMap.begin(); it != boneInfoMap.end(); it++) {
+	//	cout << it->first
+	//		<< " " << it->second.id << std::endl;
+	//}
 }
 
 void Player::Update()
 {
-	if (Input::GetKeyDown(GLFW_KEY_1))
-		m_animator->PlayAnimation(&idleAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_2))
-		m_animator->PlayAnimation(&walkAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_3))
-		m_animator->PlayAnimation(&punchAnimation, NULL, 0.0f, 0.0f, 0.0f);
-	if (Input::GetKeyDown(GLFW_KEY_4))
-		m_animator->PlayAnimation(&kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
-
-	float blendRate = Time.Deltatime*4;
-	switch (charState) {
-	case IDLE:
-		if (Input) {
-			blendAmount = 0.0f;
-			m_animator->PlayAnimation(&idleAnimation, &walkAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
-			charState = IDLE_WALK;
+	if (Dead) {
+		DeadTimer -= Time.Deltatime;
+		if (DeadTimer < 0) {
+			GameObject->Destroy = true;
 		}
-		else if (Input::GetKey(GLFW_KEY_J)) {
-			blendAmount = 0.0f;
-			m_animator->PlayAnimation(&idleAnimation, &punchAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
-			charState = IDLE_PUNCH;
-		}
-		else if (Input::GetKey(GLFW_KEY_K)) {
-			blendAmount = 0.0f;
-			m_animator->PlayAnimation(&idleAnimation, &kickAnimation, m_animator->m_CurrentTime, 0.0f, blendAmount);
-			charState = IDLE_KICK;
-		}
-		printf("idle \n");
-		break;
-	case IDLE_WALK:
-		blendAmount += blendRate;
-		m_animator->PlayAnimation(&idleAnimation, &runAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-		if (blendAmount > 0.9f) {
-			blendAmount = 0.0f;
-			float startTime = m_animator->m_CurrentTime2;
-			m_animator->PlayAnimation(&runAnimation, NULL, startTime, 0.0f, blendAmount);
-			charState = WALK;
-		}
-		printf("idle_walk \n");
-		break;
-	case WALK:
-		m_animator->PlayAnimation(&runAnimation, NULL, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-		if (!Input) {
-			charState = WALK_IDLE;
-		}
-		printf("walking\n");
-		break;
-	case WALK_IDLE:
-		blendAmount += blendRate;
-		m_animator->PlayAnimation(&runAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-		if (blendAmount > 0.9f) {
-			blendAmount = 0.0f;
-			float startTime = m_animator->m_CurrentTime2;
-			m_animator->PlayAnimation(&idleAnimation, NULL, startTime, 0.0f, blendAmount);
-			charState = IDLE;
-		}
-		printf("walk_idle \n");
-		break;
-	case IDLE_PUNCH:
-		blendAmount += blendRate;
-		m_animator->PlayAnimation(&idleAnimation, &punchAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-		if (blendAmount > 0.9f) {
-			blendAmount = 0.0f;
-			float startTime = m_animator->m_CurrentTime2;
-			m_animator->PlayAnimation(&punchAnimation, NULL, startTime, 0.0f, blendAmount);
-			charState = PUNCH_IDLE;
-		}
-		printf("idle_punch\n");
-		break;
-	case PUNCH_IDLE:
-		if (m_animator->m_CurrentTime > 0.7f) {
-			blendAmount += blendRate;
-			m_animator->PlayAnimation(&punchAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-			if (blendAmount > 0.9f) {
-				blendAmount = 0.0f;
-				float startTime = m_animator->m_CurrentTime2;
-				m_animator->PlayAnimation(&idleAnimation, NULL, startTime, 0.0f, blendAmount);
-				charState = IDLE;
-			}
-			printf("punch_idle \n");
-		}
-		else {
-			// punching
-			printf("punching \n");
-		}
-		break;
-	case IDLE_KICK:
-		blendAmount += blendRate;
-		m_animator->PlayAnimation(&idleAnimation, &kickAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-		if (blendAmount > 0.9f) {
-			blendAmount = 0.0f;
-			float startTime = m_animator->m_CurrentTime2;
-			m_animator->PlayAnimation(&kickAnimation, NULL, startTime, 0.0f, blendAmount);
-			charState = KICK_IDLE;
-		}
-		printf("idle_kick\n");
-		break;
-	case KICK_IDLE:
-		if (m_animator->m_CurrentTime > 1.0f) {
-			blendAmount += blendRate;
-			m_animator->PlayAnimation(&kickAnimation, &idleAnimation, m_animator->m_CurrentTime, m_animator->m_CurrentTime2, blendAmount);
-			if (blendAmount > 0.9f) {
-				blendAmount = 0.0f;
-				float startTime = m_animator->m_CurrentTime2;
-				m_animator->PlayAnimation(&idleAnimation, NULL, startTime, 0.0f, blendAmount);
-				charState = IDLE;
-			}
-			printf("kick_idle \n");
-		}
-		else {
-			// punching
-			printf("kicking \n");
-		}
-		break;
 	}
-
-
+	else {
+		Animate();
+		Update_Behavior();
+	}
 	m_animator->UpdateAnimation(Time.Deltatime);
 
-
-	Update_Behavior();
 }
 
 
@@ -471,7 +558,7 @@ void Player::Render(Renderer& renderer)
 	Gun_Matrix = T_asWorld * mm_Child;
 
 	shader2.setMat4("model", Gun_Matrix);
-	Gun_Model->Draw(shader2);
+	Steve::Data_->Gun_Model->Draw(shader2);
 
 
 }

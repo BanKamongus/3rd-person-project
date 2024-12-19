@@ -46,7 +46,7 @@ namespace Doozy {
 }
 
 
-
+Player* TargetPLR;
 class Enemy : public BanKBehavior
 {
 public:
@@ -65,7 +65,6 @@ public:
 	void Update();
 	void Render(Shader& shader);
 
-	Player* TargetPLR;
 	GameObj* Gun_OBJ;
 	Collider_Capsule* mCollider_Capsule;
 	int BoneIdx = MixamoBone_LeftHand;
@@ -83,7 +82,6 @@ public:
 	}
 
 	void Start() {
-		TargetPLR = sGetComponent_OfClass(TargetPLR);
 	}
 
 private:
@@ -268,7 +266,9 @@ Enemy::Enemy()
 void Enemy::Update()
 {
 
-	Update_Behavior();
+	if (TargetPLR) {
+		Update_Behavior();
+	}
 
 
 	m_animator->UpdateAnimation(Time.Deltatime);
