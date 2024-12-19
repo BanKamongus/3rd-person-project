@@ -63,6 +63,9 @@
     <ClCompile Include="Code\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\FontSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Application.h">
@@ -125,10 +128,10 @@
     <ClInclude Include="ThirdParty\Include\imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Actor.h">
+    <ClInclude Include="Code\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Player.h">
+    <ClInclude Include="Code\FontSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
