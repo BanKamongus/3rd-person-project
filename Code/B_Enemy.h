@@ -45,7 +45,8 @@ namespace Doozy {
 
 }
 
-
+int EnemyCount = 0;
+float EnemyMax = 1;
 Player* TargetPLR;
 class Enemy : public BanKBehavior
 {
@@ -71,6 +72,7 @@ public:
 
 	GameObj* BODY;
 	void Init() {
+		EnemyCount++;
 
 			BODY = GameObject;
 				Gun_OBJ = BODY->CreateChild();
@@ -82,6 +84,10 @@ public:
 	}
 
 	void Start() {
+	}
+
+	void Destruct() {
+		EnemyCount--;
 	}
 
 private:
@@ -135,11 +141,11 @@ private:
 				TargetPos = B_lerpVec3(TargetPos, TargetPLR->GameObject->Transform.wPosition, Time.Deltatime * FollowSpeed);
 				GameObject->Transform.LookAt(TargetPos);
 
-				if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 4) {
+				if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 6) {
 					GameObject->Transform.wPosition += GameObject->Transform.getForwardVector() * Time.Deltatime * Speed;
 					Anim_TransferTo(runAnimation);
 				}
-				else if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 0.5) {
+				else if (glm::distance(TargetPos, GameObject->Transform.wPosition) > 1) {
 					Shoot();
 					Anim_TransferTo(idleAnimation);
 				}
@@ -149,9 +155,9 @@ private:
 				Bullet* GetBullet = nullptr;
 				GetBullet = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetBullet);
 				if (GetBullet && GetBullet->Team == Bullet::Player) {
-					GameObj* newEnemy = GameObj::Create();
-					newEnemy->Transform.wPosition = GameObject->Transform.wPosition + glm::vec3(1, 0, 0);
-					newEnemy->AddComponent(new Enemy);
+					//GameObj* newEnemy = GameObj::Create();
+					//newEnemy->Transform.wPosition = GameObject->Transform.wPosition + glm::vec3(1, 0, 0);
+					//newEnemy->AddComponent(new Enemy);
 
 					DeathTimerStart = true; 
 					m_animator->PlayAnimation(KnockAnimation, NULL, 0.2, 0.0f, 0.0f);
@@ -164,7 +170,7 @@ private:
 	}
 
 
-	float ShootCooldown = 1;
+	float ShootCooldown = 2;
 	float ShootTimer = 0;
 	void Shoot() {
 
@@ -174,7 +180,9 @@ private:
 			BulletOBJ->Transform.wPosition = GameObject->Transform.wPosition;
 
 			BulletOBJ->Transform.wRotation = GameObject->Transform.wRotation;
-			BulletOBJ->AddComponent(new Bullet(Doozy::Data_->Bullet_Model))->Team = Bullet::Enemy;
+			Bullet* newBull = BulletOBJ->AddComponent(new Bullet(Doozy::Data_->Bullet_Model));
+			newBull->Team = Bullet::Enemy;
+			newBull->Speed *= 0.5f;
 		}
 		else
 		{

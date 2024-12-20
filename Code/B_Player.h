@@ -107,7 +107,7 @@ public:
 	}
 };
 
-
+int GunCount = 0;
 class Gun : public BanKBehavior
 {
 public:
@@ -115,8 +115,10 @@ public:
 	Collider_Capsule* mCollider_Capsule;
 
 	void Init() {
+		GunCount++;
 		GameObject->Transform.wScale = glm::vec3(0.05);
 		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule); 
+		mCollider_Capsule->Radius = 0.5;
 	}
 	void Update() {
 
@@ -143,7 +145,7 @@ public:
 
 
 	}
-
+	void Destruct() { GunCount--; }
 };
 
 
@@ -166,7 +168,7 @@ public:
 			MOVE_BACK = Input::GetKey(GLFW_KEY_S);
 			MOVE_LFT = Input::GetKey(GLFW_KEY_A);
 			MOVE_RHT = Input::GetKey(GLFW_KEY_D);
-			ATK_1 = Input::GetKey(GLFW_KEY_N);
+			ATK_1 = Input::GetKey(GLFW_KEY_N) || Input::GetMouseButton(GLFW_MOUSE_BUTTON_1);
 
 			pair Mouse = Input::getMousePosChange();
 			TURN_Y = Mouse.first;
@@ -351,7 +353,6 @@ private:
 		Velocity.z = B_clamp(Velocity.z, -MaxVel, MaxVel);
 		Velocity = B_lerpVec3(Velocity, glm::vec3(0), Time.Deltatime * 4);
 		GameObject->Transform.wPosition += Velocity * Time.Deltatime;
-
 
 
 		CamArea->Transform.wRotation.y -= 0.5f * Controls.TURN_Y;

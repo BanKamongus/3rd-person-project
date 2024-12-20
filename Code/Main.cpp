@@ -38,18 +38,9 @@ int main()
 
 
 
-     GameObj* Enemy01 = GameObj::Create();
-        Enemy01->Transform.wPosition = glm::vec3(1, 0, 0);
-        Enemy01->AddComponent(new Enemy);
  
-     //GameObj* Enemy02 = GameObj::Create();
-     //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
-     //   Enemy02->AddComponent(new Enemy);
- 
-     GameObj* GUN = GameObj::Create();
-        GUN->Transform.wPosition = glm::vec3(2, 0, 0);
-        GUN->AddComponent(new Gun);
-
+    float SpawnTimer_Gun = 0;
+    float SpawnTimer_Gun_MAX = 4;
 
 
 
@@ -103,7 +94,20 @@ int main()
             TargetPLR = Player_Bhav;
         }
 
+        SpawnTimer_Gun += Time.Deltatime;
+        if (SpawnTimer_Gun> SpawnTimer_Gun_MAX && GunCount <5) {
+            SpawnTimer_Gun = 0;
+            GameObj* GUN = GameObj::Create();
+            GUN->Transform.wPosition = glm::vec3(B_frand(-10,10), 0, B_frand(-10, 10));
+            GUN->AddComponent(new Gun);
+        }
 
+        EnemyMax += Time.Deltatime*0.025;
+        if (EnemyCount< EnemyMax) {
+            GameObj* Enemy01 = GameObj::Create();
+            Enemy01->Transform.wPosition = glm::vec3(B_frand(-10, 10), 0, B_frand(-10, 10));
+            Enemy01->AddComponent(new Enemy);
+        }
       
     }
 }
