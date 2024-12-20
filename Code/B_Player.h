@@ -10,7 +10,6 @@
 
 
 
-
 namespace Steve {
 	class Steve {
 	public:
@@ -172,7 +171,7 @@ public:
 
 			pair Mouse = Input::getMousePosChange();
 			TURN_Y = Mouse.first;
-			TURN_X = Mouse.second;
+			TURN_X = Mouse.second; 
 		}
 	}Controls; 
 
@@ -355,8 +354,8 @@ private:
 		GameObject->Transform.wPosition += Velocity * Time.Deltatime;
 
 
-		CamArea->Transform.wRotation.y -= 0.5f * Controls.TURN_Y;
-		CamArea->Transform.wRotation.x += 0.5f * Controls.TURN_X;
+		CamArea->Transform.wRotation.y -= 0.25f * Controls.TURN_Y;
+		CamArea->Transform.wRotation.x += 0.25f * Controls.TURN_X;
 		CamArea->Transform.wRotation.x = B_clamp(CamArea->Transform.wRotation.x, -90, 90);
 
 
