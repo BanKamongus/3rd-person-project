@@ -16,8 +16,10 @@ namespace Steve {
 	public:
 
 		Animation* idleAnimation;
+		Animation* idleAnimation_NOGUN;
 		Animation* walkAnimation;
 		Animation* runAnimation;
+		Animation* runAnimation_NOGUN;
 		Animation* DeadAnimation;
 		Animation* kickAnimation;
 		Animation* HitAnimation;
@@ -30,12 +32,14 @@ namespace Steve {
 			: m_model("Assets/Models/mixamo/steve.dae")
 		{
 			idleAnimation = new Animation("Assets/Models/mixamo/Rifle Aiming Idle.dae", &m_model);
+			idleAnimation_NOGUN = new Animation("Assets/Models/mixamo/idle.dae", &m_model);
 			walkAnimation = new Animation("Assets/Models/mixamo/walk.dae", &m_model);
 			runAnimation = new Animation("Assets/Models/mixamo/Rifle Run.dae", &m_model);
+			runAnimation_NOGUN = new Animation("Assets/Models/mixamo/Run.dae", &m_model);
 			DeadAnimation = new Animation("Assets/Models/mixamo/Dying.dae", &m_model);
 			kickAnimation = new Animation("Assets/Models/mixamo/kick.dae", &m_model);
 			HitAnimation = new Animation("Assets/Models/mixamo/Hit Reaction.dae", &m_model);
-
+			 
 			Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
 			Gun_Model = new Model_Static("Assets/Models/AK47/OBJ/ak7finished.obj");
 		}
@@ -104,6 +108,43 @@ public:
 };
 
 
+class Gun : public BanKBehavior
+{
+public:
+	int FloatDir = 1;
+	Collider_Capsule* mCollider_Capsule;
+
+	void Init() {
+		GameObject->Transform.wScale = glm::vec3(0.05);
+		mCollider_Capsule = GameObject->AddComponent(new Collider_Capsule); 
+	}
+	void Update() {
+
+		GameObject->Transform.wRotation.y += Time.Deltatime * 25;
+
+		//if (GameObject->Transform.wPosition.y > 0.5) {
+		//	FloatDir = -1;
+		//}
+		//else if (GameObject->Transform.wPosition.y < 0) {
+		//	FloatDir = 1;
+		//}
+		//GameObject->Transform.wPosition.y += FloatDir * 0.5 * Time.Deltatime;
+
+
+	}
+	void Render(Renderer& renderer)
+	{
+
+		Shader& shader2 = renderer.m_basicShader;
+		shader2.use();
+
+		shader2.setMat4("model", GameObject->Transform.modelMatrix);
+		Steve::Data_->Gun_Model->Draw(shader2);
+
+
+	}
+
+};
 
 
 class Player : public BanKBehavior
@@ -144,6 +185,7 @@ public:
 	float Gun_AnimCooldown = 0;
 	const float Gun_CooldownMax = 0.1f;
 	float Gun_Cooldown = 0;
+	bool HasGun = false;
 	Collider_Capsule* mCollider_Capsule;
 
 	GameObj* CamArea;
@@ -220,7 +262,7 @@ private:
 
 		Gun_Cooldown += Time.Deltatime;
 		Gun_AnimCooldown -= Time.Deltatime;
-		if (Controls.ATK_1) {
+		if (Controls.ATK_1 && HasGun) {
 			BODY_RotProbe_TargetRot = CamArea->Transform.wRotation.y;
 			BODY_TargetRot = 0;
 			Gun_AnimCooldown = Gun_AnimCooldownMax; 
@@ -345,6 +387,15 @@ private:
 					}
 				}
 			}
+			else
+			{
+				Gun* GetGun = nullptr;
+				GetGun = mCollider_Capsule->Event.Other->GameObject->GetComponent(GetGun);
+				if (GetGun) {
+					GetGun->GameObject->Destroy = true;
+					HasGun = true;
+				}
+			}
 		}
 
 
@@ -369,9 +420,18 @@ private:
 		if (Input::GetKeyDown(GLFW_KEY_4))
 			m_animator->PlayAnimation(kickAnimation, NULL, 0.0f, 0.0f, 0.0f);
 
+		if (HasGun) {
+			idleAnimation = Steve::Data_->idleAnimation;
+			runAnimation = Steve::Data_->runAnimation;
+		}
+		else
+		{
+			idleAnimation = Steve::Data_->idleAnimation_NOGUN;
+			runAnimation = Steve::Data_->runAnimation_NOGUN;
+		}
 
 		float blendRate = Time.Deltatime * 4;
-		switch (charState) {
+		switch (charState) { 
 		case IDLE:
 			if (Input) {
 				blendAmount = 0.0f;
@@ -495,7 +555,7 @@ Player::Player()
 	, DeadAnimation(Steve::Data_->DeadAnimation)
 	, kickAnimation(Steve::Data_->kickAnimation)
 {
-	m_animator = std::make_unique<Animator>(idleAnimation);
+	m_animator = std::make_unique<Animator>(Steve::Data_->idleAnimation_NOGUN);
 
 	//std::map<std::string, BoneInfo>::iterator it;
 	//auto boneInfoMap = m_animator->m_CurrentAnimation->GetBoneIDMap();
@@ -547,18 +607,18 @@ void Player::Render(Renderer& renderer)
 
 
 
+	if (HasGun) {
+		Shader& shader2 = renderer.m_basicShader;
+		shader2.use();
 
-	Shader& shader2 = renderer.m_basicShader;
-	shader2.use();
+		glm::mat4 mm_Parent = BODY->Transform.modelMatrix;
+		glm::mat4 mm_Child = Gun_OBJ->Transform.modelMatrix;
+		glm::mat4 T_asLocal = transforms[BoneIdx];
+		glm::mat4 T_asWorld = mm_Parent * T_asLocal * glm::inverse(mm_Parent);
+		Gun_Matrix = T_asWorld * mm_Child;
 
-	glm::mat4 mm_Parent = BODY->Transform.modelMatrix;
-	glm::mat4 mm_Child  = Gun_OBJ->Transform.modelMatrix;
-	glm::mat4 T_asLocal = transforms[BoneIdx];
-	glm::mat4 T_asWorld = mm_Parent * T_asLocal * glm::inverse(mm_Parent);
-	Gun_Matrix = T_asWorld * mm_Child;
-
-	shader2.setMat4("model", Gun_Matrix);
-	Steve::Data_->Gun_Model->Draw(shader2);
-
+		shader2.setMat4("model", Gun_Matrix);
+		Steve::Data_->Gun_Model->Draw(shader2);
+	}
 
 }

@@ -46,6 +46,9 @@ int main()
      //   Enemy02->Transform.wPosition = glm::vec3(-1, 0, 0);
      //   Enemy02->AddComponent(new Enemy);
  
+     GameObj* GUN = GameObj::Create();
+        GUN->Transform.wPosition = glm::vec3(2, 0, 0);
+        GUN->AddComponent(new Gun);
 
 
 
