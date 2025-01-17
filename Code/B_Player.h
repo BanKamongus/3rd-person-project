@@ -346,7 +346,8 @@ private:
 
 
 
-		float MaxVel = 5;
+		float MaxVel = 7;
+		if (HasGun) { MaxVel = 4; }
 		Velocity.x = B_clamp(Velocity.x, -MaxVel, MaxVel);
 		Velocity.y = B_clamp(Velocity.y, -MaxVel, MaxVel);
 		Velocity.z = B_clamp(Velocity.z, -MaxVel, MaxVel);
