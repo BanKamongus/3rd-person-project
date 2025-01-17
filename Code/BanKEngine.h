@@ -79,7 +79,7 @@ namespace BanKEngine {
 
 		Time.Calculate();
 
-		cout << "|" << sGameObjsAwait.size() << "|"<<sGameObjs.size() << "|" << Time.Fps << "|";
+		//cout << "|" << sGameObjsAwait.size() << "|"<<sGameObjs.size() << "|" << Time.Fps << "|";
 	}
 
 	void All_Start() {
