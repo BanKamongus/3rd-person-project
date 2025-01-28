@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include <glad/glad.h> 
 
@@ -22,9 +21,11 @@
 #include <learnopengl/assimp_glm_helpers.h>
 #include <learnopengl/animdata.h>
 
+#include "Model_Base.h"
+
 using namespace std;
 
-class Model 
+class Model_Bone : public Model
 {
 public:
     // model data 
@@ -36,7 +37,7 @@ public:
 	
 
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
+	Model_Bone(string const &path, bool gamma = false) : gammaCorrection(gamma)
     {
         loadModel(path);
     }
@@ -279,4 +280,3 @@ private:
 
 
 
-#endif

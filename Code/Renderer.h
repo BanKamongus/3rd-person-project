@@ -38,6 +38,7 @@ public:
 	Shader m_brdfShader;
 	Shader m_backgroundShader;
 	Shader m_animShader;
+	Shader m_basicShader;
 
 	unsigned int m_depthMapFBO;
 	unsigned int m_depthMap;
