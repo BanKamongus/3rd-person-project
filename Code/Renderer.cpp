@@ -128,7 +128,7 @@ Renderer::Renderer()
     , m_backgroundShader("Assets/Shaders/2.2.2.background.vs", "Assets/Shaders/2.2.2.background.fs")
     , m_animShader("Assets/Shaders/anim_model.vs", "Assets/Shaders/anim_model.fs")
     , m_camera(&s_defaultCamera)
-    , m_basicShader("Assets/Shaders/basic/6.2.coordinate_systems.vs", "Assets/Shaders/basic/6.2.coordinate_systems.fs")
+    , m_basicShader("Assets/Shaders/1.model_loading.vs", "Assets/Shaders/1.model_loading.fs")
 {
     SetupDepthMap();
     SetupPlane();

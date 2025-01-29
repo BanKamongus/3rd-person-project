@@ -51,9 +51,6 @@
     <ClCompile Include="Code\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

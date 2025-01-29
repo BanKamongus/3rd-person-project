@@ -10,6 +10,8 @@
 
 #include "BanKEngine.h"
 
+#include "FontSystem.h"
+
  
 int main()
 {
@@ -19,6 +21,8 @@ int main()
     Doozy::Load();
     Steve::Load();
 
+
+    OpenGLFontSystem fontSystem;
 
     //Camera
     GameObj* CameraOBJ = GameObj::Create();
@@ -31,7 +35,7 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        //Model_Static Model_Racetrack("Assets/Models/AK47/OBJ/ak7finished.obj");
+        Model_Static Model_Racetrack("Assets/Models/castle/Castle OBJ.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(30, 0, 30);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(10.0f, 10.0f, 10.0f);
@@ -72,8 +76,20 @@ int main()
             EACH->Render(renderer);
         }
 
+        // Rendering static models
+        Shader& basicShader = renderer.m_basicShader;
 
+        basicShader.use();
+        basicShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        basicShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
+        glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+        basicShader.setMat4("model", model);
+        basicShader.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+
+        Model_Racetrack.Draw(basicShader);
+
+        fontSystem.RenderText("I am a hero", { 100, 100 }, 24, glm::vec4(1.0f));
 
         app.SwapBuffers();
          
