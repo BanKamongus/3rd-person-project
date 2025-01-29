@@ -115,7 +115,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)ThirdParty\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;assimp.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>irrKlang.lib;assimp.lib;glew32s.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,8 +136,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\Application.cpp" />
+    <ClCompile Include="Code\FontSystem.cpp" />
     <ClCompile Include="Code\ImGuiManager.cpp" />
     <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\Player.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
     <ClCompile Include="ThirdParty\Include\glad\glad.c" />
     <ClCompile Include="ThirdParty\Include\imgui\imgui.cpp" />
@@ -155,6 +157,7 @@
     <ClInclude Include="Code\Application.h" />
     <ClInclude Include="Code\Audio.h" />
     <ClInclude Include="Code\Camera.h" />
+    <ClInclude Include="Code\FontSystem.h" />
     <ClInclude Include="Code\ImGuiManager.h" />
     <ClInclude Include="Code\Input.h" />
     <ClInclude Include="Code\Light.h" />
