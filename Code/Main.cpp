@@ -31,8 +31,8 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        //Model_Static Model_Racetrack("Assets/Models/AK47/OBJ/ak7finished.obj");
-        SceneOBJ->Transform.wPosition = glm::vec3(30, 0, 30);
+        Model_Static Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        SceneOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(10.0f, 10.0f, 10.0f);
 
@@ -56,13 +56,12 @@ int main()
 
         // Render
         renderer.Clear();
-         
+        
         renderer.m_animShader.use(); 
         renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
         renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
-
-        SceneOBJ->Transform.wPosition = glm::vec3(0); 
+ 
         Shader& Shader4Static = renderer.m_basicShader; 
         Shader4Static.use();
         Shader4Static.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
@@ -73,6 +72,9 @@ int main()
         }
 
 
+        Shader4Static.use();
+        Shader4Static.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        Model_Racetrack.Draw(Shader4Static);
 
 
         app.SwapBuffers();
