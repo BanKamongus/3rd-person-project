@@ -182,6 +182,9 @@ public:
 	void Update();
 	void Render(Renderer& renderer);
 
+	glm::vec3 Velocity;
+
+
 	int Health = 3;
 	GameObj* Gun_OBJ;
 	glm::mat4 Gun_Matrix;
@@ -254,7 +257,6 @@ private:
 	Animation* DeadAnimation;
 	Animation* kickAnimation;
 
-	glm::vec3 Velocity;
 
 
 	bool Input = false;
@@ -714,27 +716,62 @@ void PLR_Raycast_Update(GameObj* PLR_OBJ, Player* PLRbhav) {
 	glm::vec3 Vec3_RHT = -Vec3_LFT;
 
 
-	B_Ray rayFront;
-	glm::vec3 rayFront_Hitpoint;
-	rayFront.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
-	rayFront.Origin.y += 1;
-	rayFront.Direction = Vec3_Down;
-	if (RayIntersectSceneOptimized(rayFront, Triangle4Cast, rayFront_Hitpoint))
+	B_Ray RayDOWN;
+	glm::vec3 RayDOWN_Hitpoint;
+	RayDOWN.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
+	RayDOWN.Origin.y += 0.5;
+	RayDOWN.Direction = Vec3_Down;
+	if (RayIntersectSceneOptimized(RayDOWN, Triangle4Cast, RayDOWN_Hitpoint))
+		HIT = true;
+
+	B_Ray RayFRONT_F;
+	glm::vec3 RayFRONT_F_Hitpoint;
+	RayFRONT_F.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
+	RayFRONT_F.Origin.y += 0.5;
+	RayFRONT_F.Direction = Vec3_Fwd;
+	if (RayIntersectSceneOptimized(RayFRONT_F, Triangle4Cast, RayFRONT_F_Hitpoint))
+		HIT = true;
+
+	B_Ray RayFRONT_R;
+	glm::vec3 RayFRONT_R_Hitpoint;
+	RayFRONT_R.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
+	RayFRONT_R.Origin.y += 0.5;
+	RayFRONT_R.Direction = Vec3_RHT;
+	if (RayIntersectSceneOptimized(RayFRONT_R, Triangle4Cast, RayFRONT_R_Hitpoint))
+		HIT = true;
+
+	B_Ray RayFRONT_L;
+	glm::vec3 RayFRONT_L_Hitpoint;
+	RayFRONT_L.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
+	RayFRONT_L.Origin.y += 0.5;
+	RayFRONT_L.Direction = Vec3_LFT;
+	if (RayIntersectSceneOptimized(RayFRONT_L, Triangle4Cast, RayFRONT_L_Hitpoint))
 		HIT = true;
 
 
-
 	//Hitlocation->Transform.wPosition = rayBack_Hitpoint;
-	//HitlocationL->Transform.wPosition = rayFront_Hitpoint;
+	//HitlocationL->Transform.wPosition = RayDOWN_Hitpoint;
 	if (DoRaycast && HIT) {
 
 		Safe = false;
 		float TargetY = 0;
-		TargetY += rayFront_Hitpoint.y;
+		TargetY += RayDOWN_Hitpoint.y;
 		PLR_OBJ->Transform.wPosition.y = B_lerp(PLR_OBJ->Transform.wPosition.y, TargetY, 1);
 
-
-
+		float Range = 0.5f;
+		float Alpha = 0.1f;
+		if (glm::distance(RayFRONT_F.Origin, RayFRONT_F_Hitpoint)< Range) {
+			PLR_OBJ->Transform.wPosition -= RayFRONT_F.Direction * Alpha;
+			//PLRbhav->Velocity *= 0;
+		}
+		if (glm::distance(RayFRONT_R.Origin, RayFRONT_R_Hitpoint) < Range) {
+			PLR_OBJ->Transform.wPosition -= RayFRONT_R.Direction * Alpha;
+			//PLRbhav->Velocity *= 0;
+		}
+		if (glm::distance(RayFRONT_L.Origin, RayFRONT_L_Hitpoint) < Range) {
+			PLR_OBJ->Transform.wPosition -= RayFRONT_L.Direction * Alpha;
+			//PLRbhav->Velocity *= 0;
+		}
 	}
 
 

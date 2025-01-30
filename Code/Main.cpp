@@ -107,12 +107,12 @@ int main()
             GUN->AddComponent(new Gun);
         }
 
-        //EnemyMax += Time.Deltatime*0.025;
-        //if (EnemyCount< EnemyMax) {
-        //    GameObj* Enemy01 = GameObj::Create();
-        //    Enemy01->Transform.wPosition = glm::vec3(B_frand(-10, 10), 0, B_frand(-10, 10));
-        //    Enemy01->AddComponent(new Enemy);
-        //}
+        EnemyMax += Time.Deltatime*0.025; 
+        if (EnemyCount< EnemyMax) { 
+            GameObj* Enemy01 = GameObj::Create();
+            Enemy01->Transform.wPosition = glm::vec3(B_frand(-10, 10), 0, B_frand(-10, 10));
+            Enemy01->AddComponent(new Enemy);
+        }
       
     }
 }
