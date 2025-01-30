@@ -736,7 +736,7 @@ void PLR_Raycast_Update(GameObj* PLR_OBJ, Player* PLRbhav) {
 	glm::vec3 RayFRONT_R_Hitpoint;
 	RayFRONT_R.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
 	RayFRONT_R.Origin.y += 0.5;
-	RayFRONT_R.Direction = Vec3_RHT;
+	RayFRONT_R.Direction = (Vec3_RHT) ;
 	if (RayIntersectSceneOptimized(RayFRONT_R, Triangle4Cast, RayFRONT_R_Hitpoint))
 		HIT = true;
 
@@ -744,7 +744,7 @@ void PLR_Raycast_Update(GameObj* PLR_OBJ, Player* PLRbhav) {
 	glm::vec3 RayFRONT_L_Hitpoint;
 	RayFRONT_L.Origin = PLRbhav->BODY_RotProbe->Transform.getWorldPosition();
 	RayFRONT_L.Origin.y += 0.5;
-	RayFRONT_L.Direction = Vec3_LFT;
+	RayFRONT_L.Direction = (Vec3_LFT);
 	if (RayIntersectSceneOptimized(RayFRONT_L, Triangle4Cast, RayFRONT_L_Hitpoint))
 		HIT = true;
 
@@ -758,19 +758,19 @@ void PLR_Raycast_Update(GameObj* PLR_OBJ, Player* PLRbhav) {
 		TargetY += RayDOWN_Hitpoint.y;
 		PLR_OBJ->Transform.wPosition.y = B_lerp(PLR_OBJ->Transform.wPosition.y, TargetY, 1);
 
-		float Range = 0.5f;
-		float Alpha = 0.1f;
+		float Range = 0.75; 
+		float Alpha = 0.05f; 
 		if (glm::distance(RayFRONT_F.Origin, RayFRONT_F_Hitpoint)< Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_F.Direction * Alpha;
-			//PLRbhav->Velocity *= 0;
+			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity*0.16f, Time.Deltatime * 5);
 		}
 		if (glm::distance(RayFRONT_R.Origin, RayFRONT_R_Hitpoint) < Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_R.Direction * Alpha;
-			//PLRbhav->Velocity *= 0;
+			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 5);
 		}
 		if (glm::distance(RayFRONT_L.Origin, RayFRONT_L_Hitpoint) < Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_L.Direction * Alpha;
-			//PLRbhav->Velocity *= 0;
+			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 5);
 		}
 	}
 
