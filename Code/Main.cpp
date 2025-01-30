@@ -31,12 +31,13 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        Model_Static Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        Model_Static Model_Racetrack("Assets/Models/UE3rd Person/3rdPerson Visual.obj");
+        Model_Static Model_Racetrack_Collider("Assets/Models/UE3rd Person/3rdPerson.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
-        SceneOBJ->Transform.wScale = glm::vec3(10.0f, 10.0f, 10.0f);
+        SceneOBJ->Transform.wScale = glm::vec3(1, 1, 1);
 
-
+        PLR_Raycast_Init(SceneOBJ, SceneOBJ, Model_Racetrack_Collider);
 
  
     float SpawnTimer_Gun = 0;
@@ -86,11 +87,13 @@ int main()
                 float LerpSpeed = 16 * Time.Deltatime;
                 CameraOBJ->Transform.wPosition = B_lerpVec3(CameraOBJ->Transform.wPosition, Player_Bhav->CamSocket->Transform.getWorldPosition(), LerpSpeed);
                 Camera_Bhav->m_lookAt = B_lerpVec3(Camera_Bhav->m_lookAt, Player_Bhav->CamLookat->Transform.getWorldPosition(), LerpSpeed);     
+
+                PLR_Raycast_Update(Player_Bhav->GameObject, Player_Bhav);
         }
         else
         {
             PlayerOBJ = GameObj::Create();
-            PlayerOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
+            PlayerOBJ->Transform.wPosition = glm::vec3(-5, 1, -5);
             Player_Bhav = PlayerOBJ->AddComponent(new Player);
 
             TargetPLR = Player_Bhav;
@@ -104,12 +107,12 @@ int main()
             GUN->AddComponent(new Gun);
         }
 
-        EnemyMax += Time.Deltatime*0.025;
-        if (EnemyCount< EnemyMax) {
-            GameObj* Enemy01 = GameObj::Create();
-            Enemy01->Transform.wPosition = glm::vec3(B_frand(-10, 10), 0, B_frand(-10, 10));
-            Enemy01->AddComponent(new Enemy);
-        }
+        //EnemyMax += Time.Deltatime*0.025;
+        //if (EnemyCount< EnemyMax) {
+        //    GameObj* Enemy01 = GameObj::Create();
+        //    Enemy01->Transform.wPosition = glm::vec3(B_frand(-10, 10), 0, B_frand(-10, 10));
+        //    Enemy01->AddComponent(new Enemy);
+        //}
       
     }
 }
