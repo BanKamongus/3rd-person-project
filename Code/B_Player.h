@@ -758,19 +758,19 @@ void PLR_Raycast_Update(GameObj* PLR_OBJ, Player* PLRbhav) {
 		TargetY += RayDOWN_Hitpoint.y;
 		PLR_OBJ->Transform.wPosition.y = B_lerp(PLR_OBJ->Transform.wPosition.y, TargetY, 1);
 
-		float Range = 0.75; 
-		float Alpha = 0.05f; 
+		float Range = 0.8;  
+		float Alpha = 0.08f; 
 		if (glm::distance(RayFRONT_F.Origin, RayFRONT_F_Hitpoint)< Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_F.Direction * Alpha;
-			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity*0.16f, Time.Deltatime * 5);
+			PLRbhav->Velocity = B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity*0.16f, Time.Deltatime * 4);
 		}
 		if (glm::distance(RayFRONT_R.Origin, RayFRONT_R_Hitpoint) < Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_R.Direction * Alpha;
-			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 5);
+			PLRbhav->Velocity = B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 4);
 		}
 		if (glm::distance(RayFRONT_L.Origin, RayFRONT_L_Hitpoint) < Range) {
 			PLR_OBJ->Transform.wPosition -= RayFRONT_L.Direction * Alpha;
-			B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 5);
+			PLRbhav->Velocity = B_lerpVec3(PLRbhav->Velocity, PLRbhav->Velocity * 0.16f, Time.Deltatime * 4);
 		}
 	}
 

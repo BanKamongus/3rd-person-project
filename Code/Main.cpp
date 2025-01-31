@@ -31,13 +31,20 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        Model_Static Model_Racetrack("Assets/Models/UE3rd Person/3rdPerson Visual.obj");
-        Model_Static Model_Racetrack_Collider("Assets/Models/UE3rd Person/3rdPerson.obj");
+        Model_Static Model_3rdPersonUE("Assets/Models/UE3rd Person/3rdPerson Visual.obj");
+        Model_Static Model_3rdPersonUE_Collider("Assets/Models/UE3rd Person/3rdPerson.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(1, 1, 1);
 
-        PLR_Raycast_Init(SceneOBJ, SceneOBJ, Model_Racetrack_Collider);
+        PLR_Raycast_Init(SceneOBJ, SceneOBJ, Model_3rdPersonUE_Collider);
+
+    GameObj* ModelTestOBJ = GameObj::Create();
+        Model_Static Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+        ModelTestOBJ->Transform.wPosition = glm::vec3(0, -5, 0);
+        ModelTestOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
+        ModelTestOBJ->Transform.wScale = glm::vec3(0.1, 0.1, 0.1);
+
 
  
     float SpawnTimer_Gun = 0;
@@ -75,6 +82,10 @@ int main()
 
         Shader4Static.use();
         Shader4Static.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        Model_3rdPersonUE.Draw(Shader4Static);
+
+        Shader4Static.use();
+        Shader4Static.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
         Model_Racetrack.Draw(Shader4Static);
 
 
