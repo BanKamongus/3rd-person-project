@@ -125,6 +125,7 @@ public:
 	void Update() {
 
 		GameObject->Transform.wRotation.y += Time.Deltatime * 25;
+		if (GameObject->Transform.wPosition.y < 0) { GameObject->Transform.wPosition.y = 0; }
 
 		//if (GameObject->Transform.wPosition.y > 0.5) {
 		//	FloatDir = -1;

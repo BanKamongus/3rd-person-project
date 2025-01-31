@@ -167,6 +167,9 @@ private:
 			}
 
 		}
+
+
+		if (GameObject->Transform.wPosition.y < 0) { GameObject->Transform.wPosition.y = 0; }
 	}
 
 
