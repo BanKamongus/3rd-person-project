@@ -39,11 +39,11 @@ int main()
 
         PLR_Raycast_Init(SceneOBJ, SceneOBJ, Model_3rdPersonUE_Collider);
 
-    GameObj* ModelTestOBJ = GameObj::Create();
-        Model_Static Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
-        ModelTestOBJ->Transform.wPosition = glm::vec3(0, -5, 0);
-        ModelTestOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
-        ModelTestOBJ->Transform.wScale = glm::vec3(0.1, 0.1, 0.1);
+    //GameObj* ModelTestOBJ = GameObj::Create();
+    //    Model_Static Model_Racetrack("Assets/Models/Racetrack/Racetrack.obj");
+    //    ModelTestOBJ->Transform.wPosition = glm::vec3(0, -5, 0);
+    //    ModelTestOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
+    //    ModelTestOBJ->Transform.wScale = glm::vec3(0.1, 0.1, 0.1);
 
 
  
@@ -85,9 +85,10 @@ int main()
         renderer.m_basicShader.setMat4("model", SceneOBJ->Transform.modelMatrix);
         Model_3rdPersonUE.Draw(renderer.m_basicShader);
 
-        renderer.m_basicShader.use();
-        renderer.m_basicShader.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
-        Model_Racetrack.Draw(renderer.m_basicShader);
+        //renderer.m_basicShader.use();
+        //renderer.m_basicShader.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
+        //Model_Racetrack.Draw(renderer.m_basicShader); 
+        //Model_Racetrack.Draw(renderer.m_basicShader); 
 
 
         if (sGetComponent_OfClass(Player_Bhav)) {
@@ -125,7 +126,6 @@ int main()
 
 
         /////////////////////////////////////////////////////////////
-
         app.SwapBuffers();
 
 
