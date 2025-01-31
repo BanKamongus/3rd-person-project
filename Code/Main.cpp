@@ -68,31 +68,27 @@ int main()
         renderer.m_animShader.use(); 
         renderer.m_animShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
         renderer.m_animShader.setMat4("view", Camera_Bhav->GetViewMatrix());
-
  
-        Shader& Shader4Static = renderer.m_basicShader; 
-        Shader4Static.use();
-        Shader4Static.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
-        Shader4Static.setMat4("view", Camera_Bhav->GetViewMatrix());
+        renderer.m_basicShader.use();
+        renderer.m_basicShader.setMat4("projection", Camera_Bhav->GetProjectionMatrix());
+        renderer.m_basicShader.setMat4("view", Camera_Bhav->GetViewMatrix());
 
         for (GameObj* EACH : sGameObjs) {
             EACH->Render(renderer);
         }
 
 
-        Shader4Static.use();
-        Shader4Static.setMat4("model", SceneOBJ->Transform.modelMatrix);
-        Model_3rdPersonUE.Draw(Shader4Static);
-
-        Shader4Static.use();
-        Shader4Static.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
-        Model_Racetrack.Draw(Shader4Static);
-
-
-        app.SwapBuffers();
-         
 
         /////////////////////// TEMPORARY WORKSPACE  ///////////
+
+        renderer.m_basicShader.use();
+        renderer.m_basicShader.setMat4("model", SceneOBJ->Transform.modelMatrix);
+        Model_3rdPersonUE.Draw(renderer.m_basicShader);
+
+        renderer.m_basicShader.use();
+        renderer.m_basicShader.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
+        Model_Racetrack.Draw(renderer.m_basicShader);
+
 
         if (sGetComponent_OfClass(Player_Bhav)) {
                 float LerpSpeed = 16 * Time.Deltatime;
@@ -125,5 +121,13 @@ int main()
             Enemy01->AddComponent(new Enemy);
         }
       
+
+
+
+        /////////////////////////////////////////////////////////////
+
+        app.SwapBuffers();
+
+
     }
 }
