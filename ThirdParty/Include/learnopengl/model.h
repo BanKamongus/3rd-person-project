@@ -212,7 +212,6 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-    //stbi_set_flip_vertically_on_load(false);
     if (data)
     {
         GLenum format;
@@ -242,3 +241,216 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
 
     return textureID;
 }
+
+
+
+class B_StaticModel {
+public:
+    vector<Mesh> meshes;
+    string directory;
+    vector<Texture> textures_loaded;
+
+    B_StaticModel(string const& path) {
+        loadOBJ(path);
+    }
+
+    void Draw(Shader& shader) {
+        for (unsigned int i = 0; i < meshes.size(); i++)
+            meshes[i].Draw(shader);
+    }
+
+private:
+    vector<Vertex> vertices;
+    vector<unsigned int> indices;
+    map<string, vector<Texture>> materials;
+
+    void loadOBJ(string const& path) { 
+
+        vector<glm::vec3> temp_positions;
+        vector<glm::vec2> temp_texcoords;
+        vector<glm::vec3> temp_normals;
+        map<string, vector<unsigned int>> material_indices;
+
+        string current_material = "";
+
+        ifstream file(path);
+        if (!file.is_open()) {
+            cout << "ERROR: Could not open OBJ file " << path << endl;
+            return;
+        }
+
+        cout << "Loading OBJ file: " << path << endl;
+        directory = path.substr(0, path.find_last_of('/'));
+
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string prefix;
+            ss >> prefix;
+
+            if (prefix == "v") {
+                glm::vec3 position;
+                ss >> position.x >> position.y >> position.z;
+                temp_positions.push_back(position);
+            }
+            else if (prefix == "vt") {
+                glm::vec2 texcoord;
+                ss >> texcoord.x >> texcoord.y;
+                texcoord.y = 1.0f - texcoord.y;  // Flip UV coordinates
+                temp_texcoords.push_back(texcoord);
+            }
+            else if (prefix == "vn") {
+                glm::vec3 normal;
+                ss >> normal.x >> normal.y >> normal.z;
+                temp_normals.push_back(normal);
+            }
+            else if (prefix == "f") {
+                processFace(ss, temp_positions, temp_texcoords, temp_normals, material_indices[current_material]);
+            }
+            else if (prefix == "mtllib") {
+                string mtl_filename;
+                ss >> mtl_filename;
+                loadMTL(directory + "/" + mtl_filename);
+            }
+            else if (prefix == "usemtl") {
+                ss >> current_material;
+            }
+        }
+
+        file.close();
+
+        // Create meshes for each material
+        for (const auto& material : materials) {
+            vector<Vertex> mesh_vertices;
+            vector<unsigned int> mesh_indices;
+            vector<Texture> mesh_textures = material.second;
+
+            // Extract vertices and indices for this material
+            for (unsigned int index : material_indices[material.first]) {
+                mesh_vertices.push_back(vertices[index]);
+                mesh_indices.push_back(mesh_indices.size());
+            }
+
+            meshes.push_back(Mesh(mesh_vertices, mesh_indices, mesh_textures));
+        }
+
+        cout << "OBJ file loaded successfully: " << vertices.size() << " vertices, " << indices.size() << " indices." << endl;
+    }
+
+    void processFace(stringstream& ss, const vector<glm::vec3>& positions, const vector<glm::vec2>& texcoords, const vector<glm::vec3>& normals, vector<unsigned int>& material_indices) {
+        string token;
+        vector<unsigned int> face_indices;
+        map<string, unsigned int> vertex_map;
+
+        while (ss >> token) {
+            stringstream tokenStream(token);
+            unsigned int vIndex, vtIndex = 0, vnIndex = 0;
+            char delimiter;
+
+            tokenStream >> vIndex;
+            if (tokenStream.peek() == '/') {
+                tokenStream >> delimiter;
+                if (tokenStream.peek() != '/') tokenStream >> vtIndex;
+                if (tokenStream.peek() == '/') {
+                    tokenStream >> delimiter;
+                    tokenStream >> vnIndex;
+                }
+            }
+
+            string key = to_string(vIndex) + "/" + to_string(vtIndex) + "/" + to_string(vnIndex);
+
+            if (vertex_map.find(key) == vertex_map.end()) {
+                Vertex vertex;
+                vertex.Position = positions[vIndex - 1];
+
+                if (!texcoords.empty() && vtIndex > 0)
+                    vertex.TexCoords = texcoords[vtIndex - 1];
+                else
+                    vertex.TexCoords = glm::vec2(0.0f);
+
+                if (!normals.empty() && vnIndex > 0)
+                    vertex.Normal = normals[vnIndex - 1];
+                else
+                    vertex.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+
+                vertices.push_back(vertex);
+                unsigned int new_index = static_cast<unsigned int>(vertices.size()) - 1;
+                vertex_map[key] = new_index;
+            }
+
+            face_indices.push_back(vertex_map[key]);
+        }
+
+        for (size_t i = 1; i + 1 < face_indices.size(); ++i) {
+            material_indices.push_back(face_indices[0]);
+            material_indices.push_back(face_indices[i]);
+            material_indices.push_back(face_indices[i + 1]);
+        }
+    }
+
+    void loadMTL(string const& path) {
+        ifstream file(path);
+        if (!file.is_open()) {
+            cout << "ERROR: Could not open MTL file " << path << endl;
+            return;
+        }
+
+        cout << "Loading MTL file: " << path << endl;
+
+        string line, current_material;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string prefix;
+            ss >> prefix;
+
+            if (prefix == "newmtl") {
+                ss >> current_material;
+                materials[current_material] = {};
+            }
+            else if (prefix == "map_Kd") {
+                string texture_filename;
+                ss >> texture_filename;
+                string full_path = directory + "/" + texture_filename;
+
+                Texture texture;
+                texture.id = TextureFromFile(full_path.c_str());
+                texture.type = "texture_diffuse";
+                texture.path = full_path;
+
+                materials[current_material].push_back(texture);
+                textures_loaded.push_back(texture);
+            }
+        }
+
+        file.close();
+        cout << "MTL file loaded successfully." << endl;
+    }
+
+    unsigned int TextureFromFile(const char* path) {
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
+
+        int width, height, nrComponents;
+        unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+        if (data) {
+            GLenum format = (nrComponents == 4) ? GL_RGBA : GL_RGB;
+
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            stbi_image_free(data);
+        }
+        else {
+            cout << "Failed to load texture at path: " << path << endl;
+            stbi_image_free(data);
+        }
+
+        return textureID;
+    }
+};
