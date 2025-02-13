@@ -31,7 +31,7 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        B_StaticModel  Model_3rdPersonUE("Assets/Models/UE3rd Person/3rdPerson Visual.obj");
+        B_StaticModel  Model_3rdPersonUE("Assets/Models/UE3rd Person/3rdPerson.obj");
         Model_Static  Model_3rdPersonUE_Collider("Assets/Models/UE3rd Person/3rdPerson.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
@@ -39,11 +39,11 @@ int main()
 
         PLR_Raycast_Init(SceneOBJ, SceneOBJ, Model_3rdPersonUE_Collider);
 
-    GameObj* ModelTestOBJ = GameObj::Create();
-        B_StaticModel  Model_Racetrack("Assets/Models/Dust2/de_dust2.obj");
-        ModelTestOBJ->Transform.wPosition = glm::vec3(0, -5, 0);
-        ModelTestOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
-        ModelTestOBJ->Transform.wScale = glm::vec3(1, 1, 1);
+    //GameObj* ModelTestOBJ = GameObj::Create();
+    //    B_StaticModel  Model_Racetrack("Assets/Models/Dust2/de_dust2.obj");
+    //    ModelTestOBJ->Transform.wPosition = glm::vec3(0, -5, 0);
+    //    ModelTestOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
+    //    ModelTestOBJ->Transform.wScale = glm::vec3(1, 1, 1);
 
 
  
@@ -85,9 +85,9 @@ int main()
         renderer.m_basicShader.setMat4("model", SceneOBJ->Transform.modelMatrix);
         Model_3rdPersonUE.Draw(renderer.m_basicShader);
 
-        renderer.m_basicShader.use();
-        renderer.m_basicShader.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
-        Model_Racetrack.Draw(renderer.m_basicShader);
+        //renderer.m_basicShader.use();
+        //renderer.m_basicShader.setMat4("model", ModelTestOBJ->Transform.modelMatrix);
+        //Model_Racetrack.Draw(renderer.m_basicShader);
 
 
         if (sGetComponent_OfClass(Player_Bhav)) {
@@ -122,7 +122,7 @@ int main()
         }
       
 
-        fontSystem.RenderText("I am a hero", { 100, 100 }, 24, glm::vec4(1.0f));
+        //fontSystem.RenderText("I am a hero", { 100, 100 }, 24, glm::vec4(1.0f));
 
         /////////////////////////////////////////////////////////////
 
