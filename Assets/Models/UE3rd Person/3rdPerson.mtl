@@ -21,7 +21,7 @@ d 1.000000
 illum 2
 map_Kd MI_PrototypeGrid_TopDark.png
 
-newmtl MI_Solid_Blue.001
+newmtl MI_Solid_Blue_Final
 Ns 200.000000
 Ka 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
