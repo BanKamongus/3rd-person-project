@@ -138,7 +138,7 @@
     <ClCompile Include="Code\Application.cpp" />
     <ClCompile Include="Code\FontSystem.cpp" />
     <ClCompile Include="Code\ImGuiManager.cpp" />
-    <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\NewMain.cpp" />
     <ClCompile Include="Code\Renderer.cpp" />
     <ClCompile Include="ThirdParty\Include\glad\glad.c" />
     <ClCompile Include="ThirdParty\Include\imgui\imgui.cpp" />
@@ -155,13 +155,27 @@
   <ItemGroup>
     <ClInclude Include="Code\Application.h" />
     <ClInclude Include="Code\Audio.h" />
+    <ClInclude Include="Code\BanKEngine.h" />
+    <ClInclude Include="Code\B_Camera.h" />
+    <ClInclude Include="Code\B_Enemy.h" />
+    <ClInclude Include="Code\B_Player.h" />
     <ClInclude Include="Code\Camera.h" />
     <ClInclude Include="Code\FontSystem.h" />
+    <ClInclude Include="Code\Game\Bullet.h" />
+    <ClInclude Include="Code\Game\Enemy.h" />
+    <ClInclude Include="Code\Game\GameObject.h" />
+    <ClInclude Include="Code\Game\Gun.h" />
+    <ClInclude Include="Code\Game\Player.h" />
+    <ClInclude Include="Code\Game\StaticObject.h" />
+    <ClInclude Include="Code\Game\ThirdPersonCamera.h" />
     <ClInclude Include="Code\ImGuiManager.h" />
     <ClInclude Include="Code\Input.h" />
     <ClInclude Include="Code\Light.h" />
+    <ClInclude Include="Code\Math.h" />
+    <ClInclude Include="Code\Physics.h" />
     <ClInclude Include="Code\Player.h" />
     <ClInclude Include="Code\Renderer.h" />
+    <ClInclude Include="Code\ResourceManager.h" />
     <ClInclude Include="ThirdParty\Include\glad\glad.h" />
     <ClInclude Include="ThirdParty\Include\imgui\imconfig.h" />
     <ClInclude Include="ThirdParty\Include\imgui\imgui.h" />

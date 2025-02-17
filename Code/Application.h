@@ -10,6 +10,7 @@ class Application
 {
 public:
     Application();
+    virtual ~Application();
 
     void ProcessInput();
     void SwapBuffers();

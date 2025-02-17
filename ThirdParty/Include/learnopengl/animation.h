@@ -22,7 +22,7 @@ class Animation
 public:
 	Animation() = default;
 
-	Animation(const std::string& animationPath, Model_Bone* model)  // Changed from Model* to Model_Bone*
+	Animation(const std::string& animationPath, Model* model)  // Changed from Model* to Model_Bone*
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
@@ -36,7 +36,7 @@ public:
 		ReadMissingBones(animation, *model);
 	}
 
-	Animation(const Animation& copyAnim, Model_Bone* model)
+	Animation(const Animation& copyAnim, Model* model)
 	{
 		// Copy scalar values
 		m_Duration = copyAnim.m_Duration;
@@ -80,7 +80,7 @@ public:
 	}
 
 private:
-	void ReadMissingBones(const aiAnimation* animation, Model_Bone& model)  // Changed from Model& to Model_Bone&
+	void ReadMissingBones(const aiAnimation* animation, Model& model)  // Changed from Model& to Model_Bone&
 	{
 		int size = animation->mNumChannels;
 

@@ -96,6 +96,12 @@ Application::Application()
     }
 }
 
+Application::~Application()
+{
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
 glm::vec2 Application::GetWindowSize()
 {
     glm::ivec2 windowSize{ 0 };

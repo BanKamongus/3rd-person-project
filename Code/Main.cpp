@@ -35,7 +35,7 @@ int main()
 
     //Scene
     GameObj* SceneOBJ = GameObj::Create();
-        Model_Static Model_Racetrack("Assets/Models/castle/Castle OBJ.obj");
+       // Model_Static Model_Racetrack("Assets/Models/UE3rd Person/3rdPerson.obj");
         SceneOBJ->Transform.wPosition = glm::vec3(30, 0, 30);
         SceneOBJ->Transform.wRotation = glm::vec3(0, 0, 0);
         SceneOBJ->Transform.wScale = glm::vec3(10.0f, 10.0f, 10.0f);
@@ -87,7 +87,7 @@ int main()
         basicShader.setMat4("model", model);
         basicShader.setMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 
-        Model_Racetrack.Draw(basicShader);
+        //Model_Racetrack.Draw(basicShader);
 
         fontSystem.RenderText("I am a hero", { 100, 100 }, 24, glm::vec4(1.0f));
 
