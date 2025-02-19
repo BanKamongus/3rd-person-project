@@ -21,9 +21,9 @@ namespace Doozy {
 			Animation* runAnimation;
 			Animation* punchAnimation;
 			Animation* KnockAnimation;
-			Model_Bone m_model;
+			Model m_model;
 
-			Model_Static* Bullet_Model;
+			Model* Bullet_Model;
 
 			Doozy()
 				: m_model("Assets/Models/mixamo/doozy/doozy.dae")
@@ -34,7 +34,7 @@ namespace Doozy {
 				punchAnimation = new Animation("Assets/Models/mixamo/doozy/Fight Idle.dae", &m_model);
 				KnockAnimation = new Animation("Assets/Models/mixamo/doozy/Slipping.dae", &m_model);
 
-				Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
+				Bullet_Model = new Model("Assets/Models/Bullets/Bullets.obj");
 			}
 
 	}*Data_;
@@ -106,7 +106,7 @@ private:
 	float blendAmount = 0.0f;
 	float blendRate = 0.055f;
 
-	Model_Bone* m_model;
+	Model* m_model;
 	std::unique_ptr<Animator> m_animator;
 
 	Animation* idleAnimation;

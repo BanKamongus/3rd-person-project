@@ -102,7 +102,7 @@ public:
 		if (Distance < RadSum && HeightCollide) {
 			Coll_A->Event.isCollided = Coll_B->Event.isCollided = true;
 
-			std::cout << "CapsuleToCapsule Collided" << std::endl;
+			//std::cout << "CapsuleToCapsule Collided" << std::endl;
 
 			Coll_A->Event.Other = Coll_B; Coll_B->Event.Other = Coll_A;
 

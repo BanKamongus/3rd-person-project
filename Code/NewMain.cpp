@@ -34,13 +34,17 @@ int main()
     std::vector<GameObject*> gameObjects;
 
     resourceManager.LoadModel("gun", "Assets/Models/AK47/OBJ/ak7finished.obj");
+    resourceManager.LoadModel("bullet", "Assets/Models/Bullets/Bullets.obj");
 
-    gameObjects.push_back(new Player());
-    gameObjects.push_back(new Enemy());
+    Player* player = new Player();
+
+    gameObjects.push_back(player);
+    //gameObjects.push_back(new Enemy());
     gameObjects.push_back(new Gun());
     gameObjects.push_back(new StaticObject("Assets/Models/UE3rd Person/3rdPerson.obj"));
 
-	ThirdPersonCamera thirdPersonCamera(*gameObjects[0]);
+	ThirdPersonCamera thirdPersonCamera(*player);
+    player->m_thirdPersonCamera = &thirdPersonCamera;
 
     auto lastTime = std::chrono::high_resolution_clock::now();
 

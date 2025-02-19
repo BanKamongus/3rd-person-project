@@ -22,10 +22,10 @@ namespace Steve {
 		Animation* DeadAnimation;
 		Animation* kickAnimation;
 		Animation* HitAnimation;
-		Model_Bone m_model;
+		Model m_model;
 
-		Model_Static* Bullet_Model;
-		Model_Static* Gun_Model;
+		Model* Bullet_Model;
+		Model* Gun_Model;
 
 		Steve()
 			: m_model("Assets/Models/mixamo/steve.dae")
@@ -39,8 +39,8 @@ namespace Steve {
 			kickAnimation = new Animation("Assets/Models/mixamo/kick.dae", &m_model);
 			HitAnimation = new Animation("Assets/Models/mixamo/Hit Reaction.dae", &m_model);
 			 
-			Bullet_Model = new Model_Static("Assets/Models/Bullets/Bullets.obj");
-			Gun_Model = new Model_Static("Assets/Models/AK47/OBJ/ak7finished.obj");
+			Bullet_Model = new Model("Assets/Models/Bullets/Bullets.obj");
+			Gun_Model = new Model("Assets/Models/AK47/OBJ/ak7finished.obj");
 		}
 
 	}*Data_;
@@ -68,11 +68,11 @@ public:
 
 	float lifespan = 0.64;
 	float Speed = 0.8f;
-	Model_Static* m_model;
+	Model* m_model;
 	Collider_Capsule* mCollider_Capsule;
 	int Team = Bullet::Player;
 
-	Bullet(Model_Static* m_model) :m_model(m_model) {
+	Bullet(Model* m_model) :m_model(m_model) {
 	}
 
 	void Init() {
@@ -242,7 +242,7 @@ private:
 	float blendAmount = 0.0f;
 
 
-	Model_Bone m_model;
+	Model m_model;
 	std::unique_ptr<Animator> m_animator;
 
 	Animation* idleAnimation;

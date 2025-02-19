@@ -11,4 +11,3 @@ struct BoneInfo
 	glm::mat4 offset;
 
 };
-#pragma once
